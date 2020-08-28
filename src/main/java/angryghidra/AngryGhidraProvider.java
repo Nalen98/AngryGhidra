@@ -997,11 +997,8 @@ public class AngryGhidraProvider extends ComponentProvider {
                         JSONObject RegDetails = new JSONObject();
                         RegDetails.put(TFReg1.getText(), TFVal1.getText());
 
-                        for (int i = 0; i < TFregs.size(); i++) {
-                         
-                            TFregs.get(i).setBorder(UIManager.getLookAndFeel().getDefaults().getBorder("TextField.border"));
+                        for (int i = 0; i < TFregs.size(); i++) {                
                             RegDetails.put(TFregs.get(i).getText(), TFVals.get(i).getText());
-
                         }
                         angr_options.put("Registers", RegDetails);
                     }
