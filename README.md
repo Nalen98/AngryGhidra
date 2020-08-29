@@ -10,12 +10,6 @@ Solving [CTF challenge from SecurityFest 2016 "fairlight"](https://github.com/an
 
 ![AngryGhidra Plugin](./images/AngryGhidra.gif)
 
-# Screenshots
-
-![AngryGhidra Plugin GUI](./images/GUI.png)
-
-![AngryGhidra Plugin Trace](./images/Trace.png)
-
 # Installation
   
 - `pip3 install angr` at first
