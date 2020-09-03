@@ -8,7 +8,11 @@ The plugin allows you to use [angr](https://github.com/angr/angr) for binary ana
 
 Solving [CTF challenge from SecurityFest 2016 "fairlight"](https://github.com/angr/angr-doc/blob/master/examples/securityfest_fairlight/fairlight) with AngryGhidra plugin:
 
-![AngryGhidra Plugin](./images/AngryGhidra.gif)
+![AngryGhidra Plugin](./images/AngryGhidraPlugin.gif)
+
+# Screenshots
+
+![AngryGhidraView](./images/AngryGhidraView.png)
 
 # Installation
   
