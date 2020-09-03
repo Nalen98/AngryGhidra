@@ -14,6 +14,10 @@ Solving [CTF challenge from SecurityFest 2016 "fairlight"](https://github.com/an
 
 ![AngryGhidraView](./images/AngryGhidraView.png)
 
+Apply patched bytes to write them to the memory of angr project:
+
+![ApplyPatchedBytes](./images/ApplyPatchedBytes.png)
+
 # Installation
   
 - `pip3 install angr` at first
