@@ -125,7 +125,6 @@ public class AngryGhidraProvider extends ComponentProvider {
         setVisible(true);
 
         ImageIcon Addicon = new ImageIcon(getClass().getResource("/images/add.png"));
-        TmpDir = System.getProperty("java.io.tmpdir");
         delButtons = new ArrayList < JButton > ();
         delArgs = new ArrayList < JButton > ();
         delMem = new ArrayList < JButton > ();
@@ -146,7 +145,11 @@ public class AngryGhidraProvider extends ComponentProvider {
         GuiRegCounter = 2;
         GuiStoreCounter = 2;
         GuiHookCounter = 2;
-
+        TmpDir = System.getProperty("java.io.tmpdir");
+        if (System.getProperty("os.name").contains("Windows") == false) {
+        	TmpDir += "/";
+        } 
+       
         JPanel MPOPanel = new JPanel();
         MPOPanel.setForeground(new Color(46, 139, 87));
         TitledBorder borderMPO = BorderFactory.createTitledBorder("Main project options");
