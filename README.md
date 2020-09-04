@@ -21,7 +21,7 @@ Apply patched bytes to write them to the memory of angr project:
 # Installation
   
 - `pip3 install angr` at first
-- Make sure that the environment variable `python3` is set (necessarily)
+- Make sure that python3 directory added to the `PATH` (necessarily)
 - Download Release version of extension and install it in Ghidra `File → Install Extensions...` 
 - Use gradle to build extension: `GHIDRA_INSTALL_DIR=${GHIDRA_HOME} gradle` and use Ghidra to install it: `File → Install Extensions...` 
 - Clone this repository to `\Ghidra\Extensions` directory.
