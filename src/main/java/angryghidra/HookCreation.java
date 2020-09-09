@@ -66,7 +66,7 @@ public class HookCreation {
 		ImageIcon Addicon = new ImageIcon(getClass().getResource("/images/add.png"));
 		delButtons = new ArrayList < JButton > ();
 		TFregs = new ArrayList < JTextField > ();
-        TFVals = new ArrayList < JTextField > ();
+        	TFVals = new ArrayList < JTextField > ();
 		GuiHookRegCounter = 2;
 		
 		TFAddress = new IntegerTextField();		
@@ -97,11 +97,10 @@ public class HookCreation {
 	                        		Regs[0][i+1] = TFregs.get(i).getText();
 	                        		Regs[1][i+1] = TFVals.get(i).getText();
 	                        	}
-	                        }		                        
-	    					AngryGhidraProvider.Hook.put(options, Regs); 
-	    					
-	    					JLabel lbHook = new JLabel("Hook at " + TFAddress.getText());	    					
-	    					lbHook.setFont(new Font("SansSerif", Font.PLAIN, 12)); 
+	                         }		                        
+	    			AngryGhidraProvider.Hook.put(options, Regs); 	    					
+	    			JLabel lbHook = new JLabel("Hook at " + TFAddress.getText());	    					
+	    			lbHook.setFont(new Font("SansSerif", Font.PLAIN, 12)); 
 	    	                GridBagConstraints gbc_lbHook = new GridBagConstraints();
 	    	                gbc_lbHook.fill = GridBagConstraints.HORIZONTAL;
 	    	                gbc_lbHook.anchor = GridBagConstraints.CENTER;
@@ -113,21 +112,22 @@ public class HookCreation {
 	    	                gbc_lbHook.weighty = 0.1;
 	    	                AngryGhidraProvider.RegHookPanel.add(lbHook, gbc_lbHook);     					
 	    					
-	    					JButton btnDel = new JButton("");
-	    		            btnDel.setBorder(null);
-	    		            btnDel.setContentAreaFilled(false);
-	    		            btnDel.setIcon(new ImageIcon(getClass().getResource("/images/edit-delete.png")));
-	    		            GridBagConstraints gbc_btnDel = new GridBagConstraints();
-	    		            gbc_btnDel.insets = new Insets(0, 0, 0, 5);
-	    		            gbc_btnDel.fill = GridBagConstraints.HORIZONTAL;
-	    		            gbc_btnDel.anchor = GridBagConstraints.CENTER;
-	    		            gbc_btnDel.gridx = 0;
-	    		            gbc_btnDel.gridy =  AngryGhidraProvider.GuiHookCounter++;
-	    		            gbc_btnDel.weighty = 0.1;				
-	    		            AngryGhidraProvider.RegHookPanel.add(btnDel, gbc_btnDel);
-	    		            AngryGhidraProvider.delHooks.add(btnDel);
-	    		            btnDel.addActionListener(new ActionListener() {
+	    			 JButton btnDel = new JButton("");
+	    		         btnDel.setBorder(null);
+	    		         btnDel.setContentAreaFilled(false);
+	    		         btnDel.setIcon(new ImageIcon(getClass().getResource("/images/edit-delete.png")));
+	    		         GridBagConstraints gbc_btnDel = new GridBagConstraints();
+	    		         gbc_btnDel.insets = new Insets(0, 0, 0, 5);
+	    		         gbc_btnDel.fill = GridBagConstraints.HORIZONTAL;
+	    		         gbc_btnDel.anchor = GridBagConstraints.CENTER;
+	    		         gbc_btnDel.gridx = 0;
+	    		         gbc_btnDel.gridy =  AngryGhidraProvider.GuiHookCounter++;
+	    		         gbc_btnDel.weighty = 0.1;				
+	    		         AngryGhidraProvider.RegHookPanel.add(btnDel, gbc_btnDel);
+	    		         AngryGhidraProvider.delHooks.add(btnDel);
+	    		         btnDel.addActionListener(new ActionListener() {
 	    	                    public void actionPerformed(ActionEvent e) {
+					AngryGhidraProvider.Hook.remove(options, Regs);
 	    	                    	AngryGhidraProvider.GuiHookCounter--;
 	    	                    	AngryGhidraProvider.RegHookPanel.remove(lbHook);
 	    	                    	AngryGhidraProvider.RegHookPanel.remove(btnDel);
@@ -140,23 +140,23 @@ public class HookCreation {
 	    		            AngryGhidraProvider.RegHookPanel.repaint();
 	                        AngryGhidraProvider.RegHookPanel.revalidate();	    	                
 	                    }
-					}				
-				}
+			}				
+		     }
 		});		
 		
-		JLabel lbRegisters = new JLabel("<html>Registers<br/>Hint: to create and store symbolic vector enter \"sv{length}\", for example \"sv16\"</html>");
-		lbRegisters.setHorizontalAlignment(SwingConstants.CENTER);
-		lbRegisters.setFont(new Font("SansSerif", Font.PLAIN, 12));
+	JLabel lbRegisters = new JLabel("<html>Registers<br/>Hint: to create and store symbolic vector enter \"sv{length}\", for example \"sv16\"</html>");
+	lbRegisters.setHorizontalAlignment(SwingConstants.CENTER);
+	lbRegisters.setFont(new Font("SansSerif", Font.PLAIN, 12));
 		
-		JPanel RegPanel = new JPanel();
-		GridBagLayout gbl_RegPanel = new GridBagLayout();
-		gbl_RegPanel.columnWidths = new int[]{0, 0, 0, 0, 0, 0};
-		gbl_RegPanel.rowHeights = new int[]{0, 0, 0};
-		gbl_RegPanel.columnWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
-		gbl_RegPanel.rowWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
-		RegPanel.setLayout(gbl_RegPanel);
+	JPanel RegPanel = new JPanel();
+	GridBagLayout gbl_RegPanel = new GridBagLayout();
+	gbl_RegPanel.columnWidths = new int[]{0, 0, 0, 0, 0, 0};
+	gbl_RegPanel.rowHeights = new int[]{0, 0, 0};
+	gbl_RegPanel.columnWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+	gbl_RegPanel.rowWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
+	RegPanel.setLayout(gbl_RegPanel);
 		
-		JLabel lblReg = new JLabel("Register");
+	JLabel lblReg = new JLabel("Register");
         lblReg.setFont(new Font("SansSerif", Font.PLAIN, 12));
         GridBagConstraints gbc_lblReg = new GridBagConstraints();
         gbc_lblReg.anchor = GridBagConstraints.SOUTH;
