@@ -49,11 +49,18 @@ def main(file):
         for arg, length in EXPLORE_OPT["Arguments"].items():
             argv.append(claripy.BVS("argv" + str(index), int(str(length), 0) * 8))
             index += 1
-
-    if EXPLORE_OPT["auto_load_libs"] is True:
-        p = angr.Project(EXPLORE_OPT["binary_file"], load_options={"auto_load_libs": True})
+            
+    if "Raw Binary" in EXPLORE_OPT:
+        for bin_option, data in EXPLORE_OPT["Raw Binary"].items():
+            if bin_option == "Arch":
+                arch = data
+            if bin_option == "Base":
+                base_address = int(str(data), 0)
+        p = angr.Project(EXPLORE_OPT["binary_file"],
+                         load_options={'main_opts': {'backend': 'blob', 'arch': arch,
+                                                     'base_addr': base_address}, 'auto_load_libs': EXPLORE_OPT["auto_load_libs"]})
     else:
-        p = angr.Project(EXPLORE_OPT["binary_file"], load_options={"auto_load_libs": False})
+        p = angr.Project(EXPLORE_OPT["binary_file"], load_options={"auto_load_libs": EXPLORE_OPT["auto_load_libs"]})
 
     global REGISTERS
     REGISTERS = p.arch.default_symbolic_registers
