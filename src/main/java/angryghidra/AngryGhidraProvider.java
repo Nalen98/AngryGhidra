@@ -1281,6 +1281,15 @@ public class AngryGhidraProvider extends ComponentProvider {
                         binary_path = binary_path.replace("/", "\\");
                     }
                     angr_options.put("binary_file", binary_path);
+                    
+                     if (ThisProgram.getExecutableFormat().contains("Raw Binary")) {
+                    	JSONObject RawBinary= new JSONObject();                    	
+                    	String Arch = ThisProgram.getLanguage().toString().substring(0, ThisProgram.getLanguage().toString().indexOf("/"));
+                    	RawBinary.put("Arch", Arch);                    	
+                    	RawBinary.put("Base", "0x" + Long.toHexString(ThisProgram.getMinAddress().getOffset()));                    	
+                    	angr_options.put("Raw Binary", RawBinary);
+                    }
+                    
                     File angrfile = new File(TmpDir + "angr_options.json");
                     if (angrfile.exists()) {
                         angrfile.delete();
