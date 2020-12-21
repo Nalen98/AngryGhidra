@@ -1322,7 +1322,25 @@ public class AngryGhidraProvider extends ComponentProvider {
                 spath = (spath.substring(0, spath.indexOf("lib")) + "angryghidra_script" + File.separator + "angryghidra.py");
                 File Scriptfile = new File(spath);
                 String script_path = Scriptfile.getAbsolutePath();
-                runAngr(script_path, angrfile.getAbsolutePath());
+                
+                //PythonVersion check (issue#5)
+                if (runAngr("python3", script_path, angrfile.getAbsolutePath()) == 0) {
+        			ProcessBuilder pb = new ProcessBuilder("python", "--version");
+               	 	try {
+                        Process p = pb.start();
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                        String line = "";
+                        while ((line = reader.readLine()) != null) {                	         	
+                        	if (compareVersion(line.substring(7), "3.4") == -1 && compareVersion(line.substring(7), "3.0") == 1) {
+                        		runAngr("python", script_path, angrfile.getAbsolutePath());
+                        	}    
+                        };           
+                        p.waitFor();
+                        reader.close();
+                    } catch (Exception e1) {
+                        e1.printStackTrace();
+                    };           
+        		}
                 angrfile.delete();
                 return null;
             }
@@ -1362,10 +1380,10 @@ public class AngryGhidraProvider extends ComponentProvider {
         sw.execute();
     }
 
-    public void runAngr(String script_path, String angrfile_path) {
+    public int runAngr(String pythonVersion, String script_path, String angrfile_path) {
         solution = "";
         insntrace = "";
-        ProcessBuilder pb = new ProcessBuilder("python3", script_path, angrfile_path);
+        ProcessBuilder pb = new ProcessBuilder(pythonVersion, script_path, angrfile_path);
         try {
             Process p = pb.start();
             BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
@@ -1380,15 +1398,41 @@ public class AngryGhidraProvider extends ComponentProvider {
             if (isTerminated == true) {
                 p.destroy();
                 reader.close();
-                return;
+                return -1;
             }
             p.waitFor();
             reader.close();
+            return 1;
         } catch (Exception e1) {
             e1.printStackTrace();
-        };
+            return 0;
+        }
     }
-
+    public int compareVersion(String version1, String version2) {
+	    String[] arr1 = version1.split("\\.");
+	    String[] arr2 = version2.split("\\.");
+	 
+	    int i=0;
+	    while(i<arr1.length || i<arr2.length){
+	        if(i<arr1.length && i<arr2.length){
+	            if(Integer.parseInt(arr1[i]) < Integer.parseInt(arr2[i])){
+	                return -1;
+	            }else if(Integer.parseInt(arr1[i]) > Integer.parseInt(arr2[i])){
+	                return 1;
+	            }
+	        } else if(i<arr1.length){
+	            if(Integer.parseInt(arr1[i]) != 0){
+	                return 1;
+	            }
+	        } else if(i<arr2.length){
+	           if(Integer.parseInt(arr2[i]) != 0){
+	                return -1;
+	            }
+	        }	 
+	        i++;
+	    }	 
+	    return 0;
+	}
 
     @Override
     public JComponent getComponent() {
