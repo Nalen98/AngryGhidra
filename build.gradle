@@ -38,19 +38,15 @@ repositories {
     mavenCentral()
 }
 
-configurations {
-    toCopy
-}
-
 dependencies {
-    toCopy 'org.json:json:20200518'      
-    implementation configurations.toCopy    
+   compile 'org.json:json:20200518'
 }
 
-task copyToLib(type: Copy) {
-    from configurations.toCopy 
-    into 'lib'
+task copyLib(type: Copy) {
+    from configurations.runtime
+    into "lib"
 }
 
-processResources.dependsOn copyToLib
+tasks.assemble.dependsOn copyLib
+
 
