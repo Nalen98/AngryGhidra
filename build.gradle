@@ -39,11 +39,11 @@ repositories {
 }
 
 dependencies {
-   compile 'org.json:json:20200518'
+   implementation 'org.json:json:20200518'
 }
 
 task copyLib(type: Copy) {
-    from configurations.runtime
+    from configurations.runtimeOnly
     into "lib"
 }
 
