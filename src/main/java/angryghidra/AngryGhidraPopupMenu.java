@@ -41,17 +41,14 @@ public class AngryGhidraPopupMenu extends ListingContextAction {
     }
 
     public void setupActions() {
-
         tool.setMenuGroup(new String[] {
             MenuName
         }, Group_Name);             
 
         CurrentAvoidAddrses = new ArrayList < Address > ();
         ListingContextAction SetFind = new ListingContextAction("Set Find Address", getName()) {
-
             @Override
             protected void actionPerformed(ListingActionContext context) {
-
                 if (CurrentFindAddr != null) {
                     UnSetColor(CurrentFindAddr);
                 }
@@ -59,7 +56,6 @@ public class AngryGhidraPopupMenu extends ListingContextAction {
                 CurrentFindAddr = address;
                 SetColor(address, Color.GREEN);
                 AngryGhidraProvider.TFFind.setText("0x" + address.toString());
-
             }
         };
 
@@ -71,15 +67,12 @@ public class AngryGhidraPopupMenu extends ListingContextAction {
         tool.addAction(SetFind);
 
         ListingContextAction UnSetFind = new ListingContextAction("Unset Find Address", getName()) {
-
             @Override
             protected void actionPerformed(ListingActionContext context) {
-
                 Address address = context.getLocation().getAddress();
                 UnSetColor(address);
                 CurrentFindAddr = null;
-               AngryGhidraProvider.TFFind.setText("");
-
+            AngryGhidraProvider.TFFind.setText("");
             }
         };
 
@@ -91,10 +84,8 @@ public class AngryGhidraPopupMenu extends ListingContextAction {
         tool.addAction(UnSetFind);
 
         ListingContextAction SetBlankState = new ListingContextAction("Set Blank State Address", getName()) {
-
             @Override
             protected void actionPerformed(ListingActionContext context) {
-
                 if (CurrentBlankAddr != null) {
                     UnSetColor(CurrentBlankAddr);
                 }
@@ -102,7 +93,7 @@ public class AngryGhidraPopupMenu extends ListingContextAction {
                 CurrentBlankAddr = address;
                 SetColor(address, Color.CYAN);
                 AngryGhidraProvider.chckbxBlankState.setSelected(true);
-               AngryGhidraProvider.TFBlankState.setText("0x" + address.toString());
+            AngryGhidraProvider.TFBlankState.setText("0x" + address.toString());
             }
         };
 
@@ -114,16 +105,13 @@ public class AngryGhidraPopupMenu extends ListingContextAction {
         tool.addAction(SetBlankState);
 
         ListingContextAction UnSetBlankState = new ListingContextAction("Unset Blank State Address", getName()) {
-
             @Override
             protected void actionPerformed(ListingActionContext context) {
-
                 Address address = context.getLocation().getAddress();
                 UnSetColor(address);
                 CurrentBlankAddr = null;
-               AngryGhidraProvider.TFBlankState.setText("");
+                AngryGhidraProvider.TFBlankState.setText("");
                 AngryGhidraProvider.chckbxBlankState.setSelected(false);
-
             }
         };
 
@@ -135,10 +123,8 @@ public class AngryGhidraPopupMenu extends ListingContextAction {
         tool.addAction(UnSetBlankState);
 
         ListingContextAction SetAvoid = new ListingContextAction("Set Avoid Address", getName()) {
-
             @Override
             protected void actionPerformed(ListingActionContext context) {
-
                 Address address = context.getLocation().getAddress();
                 SetColor(address, Color.RED);
                 AngryGhidraProvider.chckbxAvoidAddresses.setSelected(true);
@@ -159,16 +145,13 @@ public class AngryGhidraPopupMenu extends ListingContextAction {
         tool.addAction(SetAvoid);
 
         ListingContextAction UnSetAvoid = new ListingContextAction("Unset Avoid Address", getName()) {
-
             @Override
             protected void actionPerformed(ListingActionContext context) {
-
                 Address address = context.getLocation().getAddress();
                 UnSetColor(address);
                 String AvoidAreaText = AngryGhidraProvider.textArea.getText();
                 int addrindex = AvoidAreaText.indexOf("0x" + address.toString());
                 int commaindex = AvoidAreaText.indexOf(",");
-
                 if (addrindex == 0 & commaindex != -1) {
                     AvoidAreaText = AvoidAreaText.replace("0x" + address.toString() + "," + System.getProperty("line.separator"), "");
                 }
@@ -178,10 +161,8 @@ public class AngryGhidraPopupMenu extends ListingContextAction {
                 if (addrindex != 0) {
                     AvoidAreaText = AvoidAreaText.replace("," + System.getProperty("line.separator") + "0x" + address.toString(), "");
                 }
-
                 AngryGhidraProvider.textArea.setText(AvoidAreaText);
                 CurrentAvoidAddrses.remove(address);
-
             }
         };
 
@@ -193,31 +174,27 @@ public class AngryGhidraPopupMenu extends ListingContextAction {
         tool.addAction(UnSetAvoid); 
         
         ListingContextAction ApplyPatchedBytes = new ListingContextAction("Apply Patched Bytes", getName()) {
-
             @Override
-            protected void actionPerformed(ListingActionContext context) {
-                    
-            	Address MinAddress = context.getSelection().getMinAddress();
+            protected void actionPerformed(ListingActionContext context) {                    
+                Address MinAddress = context.getSelection().getMinAddress();
                 AddressIterator addressRange = context.getSelection().getAddresses(true);
                 StringBuilder HexStringBuilder = new StringBuilder();
                 for (Address address: addressRange) {
-                	byte Byte = 0;
-					try {
-						Byte = context.getProgram().getMemory().getByte(address);
-					} catch (MemoryAccessException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-                	HexStringBuilder.append(String.format("%02X", Byte));                	
+                    byte Byte = 0;
+                    try {
+                        Byte = context.getProgram().getMemory().getByte(address);
+                    } catch (MemoryAccessException e) {						
+                        e.printStackTrace();
+                    }
+                    HexStringBuilder.append(String.format("%02X", Byte));                	
                 }  
                 String HexValueString = HexStringBuilder.toString();                
                 BigInteger HexValue = new BigInteger(HexValueString, 16);
                 
-                if (AngryGhidraProvider.TFstore_addr.getText().isEmpty() == false) {
-                	
-                	IntegerTextField TFaddr = new IntegerTextField();
-                	TFaddr.setHexMode();
-                	TFaddr.setValue(MinAddress.getOffset());
+                if (AngryGhidraProvider.TFstore_addr.getText().isEmpty() == false) {                	
+                    IntegerTextField TFaddr = new IntegerTextField();
+                    TFaddr.setHexMode();
+                    TFaddr.setValue(MinAddress.getOffset());
                     GridBagConstraints gbc_TFaddr = new GridBagConstraints();
                     gbc_TFaddr.fill = GridBagConstraints.HORIZONTAL;
                     gbc_TFaddr.anchor = GridBagConstraints.NORTH;
@@ -258,51 +235,43 @@ public class AngryGhidraPopupMenu extends ListingContextAction {
                     AngryGhidraProvider.delStore.add(btnDel);
                     btnDel.addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent e) {
-                        	AngryGhidraProvider.GuiStoreCounter--;
-                        	AngryGhidraProvider.WMPanel.remove(TFaddr.getComponent());
-                        	AngryGhidraProvider.WMPanel.remove(TFval.getComponent());
-                        	AngryGhidraProvider.WMPanel.remove(btnDel);
-                        	AngryGhidraProvider.delStore.remove(btnDel);
-                        	AngryGhidraProvider.TFStoreAddrs.remove(TFaddr);
-                        	AngryGhidraProvider.TFStoreVals.remove(TFval);
-                        	AngryGhidraProvider.WMPanel.repaint();
-                        	AngryGhidraProvider.WMPanel.revalidate();
+                            AngryGhidraProvider.GuiStoreCounter--;
+                            AngryGhidraProvider.WMPanel.remove(TFaddr.getComponent());
+                            AngryGhidraProvider.WMPanel.remove(TFval.getComponent());
+                            AngryGhidraProvider.WMPanel.remove(btnDel);
+                            AngryGhidraProvider.delStore.remove(btnDel);
+                            AngryGhidraProvider.TFStoreAddrs.remove(TFaddr);
+                            AngryGhidraProvider.TFStoreVals.remove(TFval);
+                            AngryGhidraProvider.WMPanel.repaint();
+                            AngryGhidraProvider.WMPanel.revalidate();
                         }
-
                     });
                     AngryGhidraProvider.WMPanel.repaint();
                     AngryGhidraProvider.WMPanel.revalidate();
                 }            
                 else {
-                	AngryGhidraProvider.TFstore_addr.setValue(MinAddress.getOffset());
-                	AngryGhidraProvider.TFstore_val.setValue(HexValue);                	
-                }
-                
+                    AngryGhidraProvider.TFstore_addr.setValue(MinAddress.getOffset());
+                    AngryGhidraProvider.TFstore_val.setValue(HexValue);                	
+                }                
             }
         };   
         ApplyPatchedBytes.setPopupMenuData(new MenuData(new String[] {
-                MenuName,
-                "Apply Patched Bytes"}, null, Group_Name));
+            MenuName,
+            "Apply Patched Bytes"}, null, Group_Name));
         tool.addAction(ApplyPatchedBytes);
-
     }
 
     public static void UnSetColor(Address address) {
-
         ColorizingService service = tool.getService(ColorizingService.class);
         int TransactionID = program.startTransaction("UnSetColor");
         service.clearBackgroundColor(address, address);
         program.endTransaction(TransactionID, true);
-
     }
 
     public static void SetColor(Address address, Color color) {
-
         ColorizingService service = tool.getService(ColorizingService.class);
         int TransactionID = program.startTransaction("SetColor");
         service.setBackgroundColor(address, address, color);
         program.endTransaction(TransactionID, true);
-
-    }
-    
+    }    
 }

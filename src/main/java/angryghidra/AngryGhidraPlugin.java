@@ -43,7 +43,7 @@ public class AngryGhidraPlugin extends ProgramPlugin {
     AngryGhidraPopupMenu popup;        
 
     public AngryGhidraPlugin(PluginTool tool) {
-        super(tool, true, true);       
+        super(tool);       
         String pluginName = getName();
         provider = new AngryGhidraProvider(this, pluginName, this.getCurrentProgram());
         createActions();
