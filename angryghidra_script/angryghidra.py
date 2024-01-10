@@ -10,7 +10,7 @@ SYMVECTORS = []
 
 
 def hook_function(state):
-    for object in EXPLORE_OPT["Hooks"]:
+    for object in EXPLORE_OPT["hooks"]:
         for frame in object.items():
             if frame[0] == str(hex(state.solver.eval(state.regs.ip))):
                 for option, data in frame[1].items():
@@ -37,30 +37,29 @@ def main(file):
     if "blank_state" in EXPLORE_OPT:
         blank_state = int(EXPLORE_OPT["blank_state"], 16)
 
-    find = int(EXPLORE_OPT["find"], 16)
+    find = int(EXPLORE_OPT["find_address"], 16)
 
-    if "avoid" in EXPLORE_OPT:
-        avoid = [int(x, 16) for x in EXPLORE_OPT["avoid"].split(',')]
+    if "avoid_address" in EXPLORE_OPT:
+        avoid = [int(x, 16) for x in EXPLORE_OPT["avoid_address"].split(',')]
 
     # User can input hex or decimal value (argv length / symbolic memory length)
     argv = [EXPLORE_OPT["binary_file"]]
-    if "Arguments" in EXPLORE_OPT:
+    if "arguments" in EXPLORE_OPT:
         index = 1
-        for arg, length in EXPLORE_OPT["Arguments"].items():
+        for arg, length in EXPLORE_OPT["arguments"].items():
             argv.append(claripy.BVS("argv" + str(index), int(str(length), 0) * 8))
             index += 1
-            
-    if "Raw Binary" in EXPLORE_OPT:
-        for bin_option, data in EXPLORE_OPT["Raw Binary"].items():
-            if bin_option == "Arch":
-                arch = data
-            if bin_option == "Base":
-                base_address = int(str(data), 0)
+
+    if "base_address" in EXPLORE_OPT:
+        base_address = int(EXPLORE_OPT["base_address"], 16)
+
+    if "raw_binary_arch" in EXPLORE_OPT:
+        arch = EXPLORE_OPT["raw_binary_arch"]
         p = angr.Project(EXPLORE_OPT["binary_file"],
                          load_options={'main_opts': {'backend': 'blob', 'arch': arch,
                                                      'base_addr': base_address}, 'auto_load_libs': EXPLORE_OPT["auto_load_libs"]})
     else:
-        p = angr.Project(EXPLORE_OPT["binary_file"], load_options={"auto_load_libs": EXPLORE_OPT["auto_load_libs"]})
+        p = angr.Project(EXPLORE_OPT["binary_file"], load_options={'main_opts': {'base_addr': base_address}, "auto_load_libs": EXPLORE_OPT["auto_load_libs"]})
 
     global REGISTERS
     REGISTERS = p.arch.default_symbolic_registers
@@ -73,26 +72,26 @@ def main(file):
         state = p.factory.entry_state()
 
     # Store symbolic vectors in memory
-    if "Memory" in EXPLORE_OPT:
-        Memory = {}
-        for addr, length in EXPLORE_OPT["Memory"].items():
+    if "vectors" in EXPLORE_OPT:
+        vectors = {}
+        for addr, length in EXPLORE_OPT["vectors"].items():
             symbmem_addr = int(addr, 16)
             symbmem_len = int(length, 0)
-            Memory.update({symbmem_addr: symbmem_len})
+            vectors.update({symbmem_addr: symbmem_len})
             symb_vector = claripy.BVS('input', symbmem_len * 8)
             state.memory.store(symbmem_addr, symb_vector)
 
     # Write to memory
-    if "Store" in EXPLORE_OPT:
-        for addr, value in EXPLORE_OPT["Store"].items():
+    if "mem_store" in EXPLORE_OPT:
+        for addr, value in EXPLORE_OPT["mem_store"].items():
             store_addr = int(addr, 16)
             store_value = int(value, 16)
             store_length = len(value) - 2
             state.memory.store(store_addr, state.solver.BVV(store_value, 4 * store_length))
 
     # Handle Symbolic Registers
-    if "Registers" in EXPLORE_OPT:
-        for register, data in EXPLORE_OPT["Registers"].items():
+    if "regs_vals" in EXPLORE_OPT:
+        for register, data in EXPLORE_OPT["regs_vals"].items():
             if "sv" in data:
                 symbvector_length = int(data[2:], 0)
                 symbvector = claripy.BVS('symvector', symbvector_length * 8)
@@ -106,8 +105,8 @@ def main(file):
                     break
 
     # Handle Hooks
-    if "Hooks" in EXPLORE_OPT:
-        for object in EXPLORE_OPT["Hooks"]:
+    if "hooks" in EXPLORE_OPT:
+        for object in EXPLORE_OPT["hooks"]:
             for frame in object.items():
                 hook_address = frame[0]
                 for option, data in frame[1].items():
@@ -118,7 +117,7 @@ def main(file):
                 p.hook(int(hook_address, 16), hook_function, length=hook_length)
 
     simgr = p.factory.simulation_manager(state)
-    if "avoid" in locals():
+    if "avoid_address" in locals():
         simgr.use_technique(angr.exploration_techniques.Explorer(find=find, avoid=avoid))
     else:
         simgr.use_technique(angr.exploration_techniques.Explorer(find=find))
@@ -141,8 +140,8 @@ def main(file):
             for i in range(1, len(argv)):
                 print("argv[{id}] = {solution}".format(id=i, solution=found_path.solver.eval(argv[i], cast_to=bytes)))
 
-        if "Memory" in locals() and len(Memory) != 0:
-            for address, length in Memory.items():
+        if "vectors" in locals() and len(vectors) != 0:
+            for address, length in vectors.items():
                 print("{addr} = {value}".format(addr=hex(address),
                                                 value=found_path.solver.eval(found_path.memory.load(address, length),
                                                                              cast_to=bytes)))
