@@ -1,5 +1,6 @@
 package angryghidra;
 
+
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
@@ -7,10 +8,12 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Insets;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map.Entry;
+
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.ImageIcon;
@@ -21,19 +24,18 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.SwingConstants;
-
 import docking.widgets.textfield.IntegerTextField;
 
 public class HookCreation {
 
-    static JFrame Hookframe;
+    public static JFrame hookframe;
+    public static JPanel RegPanel;
     static IntegerTextField TFAddress;
     static JTextField TFHookReg1;
-    static JTextField TFHookVal1;
-    private int GuiHookRegCounter;
-    private ArrayList < JTextField > TFregs;
-    private ArrayList < JTextField > TFVals;
-    private ArrayList < JButton > delButtons;   
+    static JTextField TFHookVal1;  
+    private static int GuiHookRegCounter;
+    private static HashMap <JTextField, JTextField> regsVals;
+    private static ArrayList < JButton > delButtons;
     private IntegerTextField TFLength;
 
     public void main() {
@@ -41,7 +43,7 @@ public class HookCreation {
             public void run() {
                 try {
                     HookCreation window = new HookCreation();
-                    window.Hookframe.setVisible(true);
+                    window.hookframe.setVisible(true);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -52,101 +54,105 @@ public class HookCreation {
     public HookCreation() {
         initialize();
     }
-	
+    
     private void initialize() {
-        Hookframe = new JFrame();
-        Hookframe.getContentPane().setMinimumSize(new Dimension(500, 333));
-        Hookframe.setTitle("Add hook");		
-        Hookframe.setMinimumSize(new Dimension(500, 333));		
-        Hookframe.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        Hookframe.setLocationRelativeTo(null);
-        Image icon = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/images/Ico.png"));
-        Hookframe.setIconImage(icon);		
-        
-        ImageIcon Addicon = new ImageIcon(getClass().getResource("/images/add.png"));
-        delButtons = new ArrayList < JButton > ();
-        TFregs = new ArrayList < JTextField > ();
-        TFVals = new ArrayList < JTextField > ();
+        hookframe = new JFrame();
+        hookframe.getContentPane().setMinimumSize(new Dimension(500, 333));
+        hookframe.setTitle("Add hook");
+        hookframe.setMinimumSize(new Dimension(500, 333));
+        hookframe.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        hookframe.setLocationRelativeTo(null);
+        Image icon = new ImageIcon(getClass().getResource("/images/main_ico.png")).getImage();
+        hookframe.setIconImage(icon);  
+    
+        delButtons = new ArrayList <JButton> ();
+        regsVals =  new HashMap<>();
         GuiHookRegCounter = 2;
         
-        TFAddress = new IntegerTextField();		
+        TFAddress = new IntegerTextField();
         TFAddress.setHexMode();
         GridBagConstraints gbc_TFAddress = new GridBagConstraints();
         gbc_TFAddress.anchor = GridBagConstraints.NORTH;
         gbc_TFAddress.fill = GridBagConstraints.HORIZONTAL;
         gbc_TFAddress.gridx = 0;
         gbc_TFAddress.gridy = 1;
-		
+        
         JButton btnCreate = new JButton("Add");
         btnCreate.setFont(new Font("SansSerif", Font.PLAIN, 12));
         btnCreate.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {				
-                if (TFAddress.getText().isEmpty() == false & TFLength.getText().isEmpty() == false) {										
+            public void actionPerformed(ActionEvent e) {
+                if (!TFAddress.getText().isEmpty() && !TFLength.getText().isEmpty()) {
                     String[] options = new String[2];
                     options[0] = TFAddress.getText();
                     options[1] = TFLength.getText();
-                    String[][] Regs = new String[2][TFregs.size()+1];					
-                    if (TFHookReg1.getText().isEmpty() == false & TFHookVal1.getText().isEmpty() == false & (TFHookVal1.getText().matches("0x[0-9A-Fa-f]+") == true || 
-                        TFHookVal1.getText().matches("[0-9]+") == true || TFHookVal1.getText().contains("sv"))) {	                        
-                            Regs[0][0] = TFHookReg1.getText();
-                            Regs[1][0] = TFHookVal1.getText();	                       
-                            for (int i = 0; i < TFregs.size(); i++) { 
-                                if (TFregs.get(i).getText().isEmpty() == false & TFVals.get(i).getText().isEmpty() == false & (TFVals.get(i).getText().matches("0x[0-9A-Fa-f]+") == true || 
-                                    TFVals.get(i).getText().matches("[0-9]+") == true || TFVals.get(i).getText().contains("sv"))) {	                        		
-                                    Regs[0][i+1] = TFregs.get(i).getText();
-                                    Regs[1][i+1] = TFVals.get(i).getText();
-                                }
-                            }		                        
-                            AngryGhidraProvider.Hook.put(options, Regs); 	    					
-                            JLabel lbHook = new JLabel("Hook at " + TFAddress.getText());	    					
-                            lbHook.setFont(new Font("SansSerif", Font.PLAIN, 12)); 
-                            GridBagConstraints gbc_lbHook = new GridBagConstraints();
-                            gbc_lbHook.fill = GridBagConstraints.HORIZONTAL;
-                            gbc_lbHook.anchor = GridBagConstraints.CENTER;
-                            gbc_lbHook.gridwidth = 3;
-                            gbc_lbHook.gridx = 1;
-                            gbc_lbHook.insets = new Insets(0, 0, 0, 5);
-                            gbc_lbHook.gridy = AngryGhidraProvider.GuiHookCounter;
-                            gbc_lbHook.weightx = 1;
-                            gbc_lbHook.weighty = 0.1;
-                            AngryGhidraProvider.RegHookPanel.add(lbHook, gbc_lbHook);     					
-                            
-                            JButton btnDel = new JButton("");
-                            btnDel.setBorder(null);
-                            btnDel.setContentAreaFilled(false);
-                            btnDel.setIcon(new ImageIcon(getClass().getResource("/images/edit-delete.png")));
-                            GridBagConstraints gbc_btnDel = new GridBagConstraints();
-                            gbc_btnDel.insets = new Insets(0, 0, 0, 5);
-                            gbc_btnDel.fill = GridBagConstraints.HORIZONTAL;
-                            gbc_btnDel.anchor = GridBagConstraints.CENTER;
-                            gbc_btnDel.gridx = 0;
-                            gbc_btnDel.gridy =  AngryGhidraProvider.GuiHookCounter++;
-                            gbc_btnDel.weighty = 0.1;				
-                            AngryGhidraProvider.RegHookPanel.add(btnDel, gbc_btnDel);
-                            AngryGhidraProvider.delHooks.add(btnDel);
-                            btnDel.addActionListener(new ActionListener() {
-                                public void actionPerformed(ActionEvent e) {
-                                    AngryGhidraProvider.Hook.remove(options, Regs);
-                                    AngryGhidraProvider.GuiHookCounter--;
-                                    AngryGhidraProvider.RegHookPanel.remove(lbHook);
-                                    AngryGhidraProvider.RegHookPanel.remove(btnDel);
-                                    AngryGhidraProvider.delHooks.remove(btnDel);
-                                    AngryGhidraProvider.lbHooks.remove(lbHook);
-                                    AngryGhidraProvider.RegHookPanel.repaint();
-                                    AngryGhidraProvider.RegHookPanel.revalidate();
-                                }
-                            });
-                            AngryGhidraProvider.RegHookPanel.repaint();
-                            AngryGhidraProvider.RegHookPanel.revalidate();
+                    String[][] regs = new String[2][regsVals.size() + 1];
+                    
+                    String reg1 = TFHookReg1.getText();
+                    String val1 = TFHookVal1.getText();
+                    int id = 0;
+                    if (AngryGhidraProvider.symbolicVectorInputCheck(reg1, val1)) {
+                        regs[0][id] = reg1;
+                        regs[1][id++] = val1;
+                        for (Entry<JTextField, JTextField> entry : regsVals.entrySet()) {
+                            String reg = entry.getKey().getText();
+                            String val = entry.getValue().getText();
+                            if (AngryGhidraProvider.symbolicVectorInputCheck(reg, val)) {
+                                regs[0][id] = reg;
+                                regs[1][id] = val;
+                            }
+                            id++;
                         }
+                        AngryGhidraProvider.hooks.put(options, regs);
+                        JLabel lbHook = new JLabel("Hook at " + TFAddress.getText());
+                        lbHook.setFont(new Font("SansSerif", Font.PLAIN, 12)); 
+                        GridBagConstraints gbc_lbHook = new GridBagConstraints();
+                        gbc_lbHook.fill = GridBagConstraints.HORIZONTAL;
+                        gbc_lbHook.anchor = GridBagConstraints.NORTH;
+                        gbc_lbHook.gridwidth = 3;
+                        gbc_lbHook.gridx = 1;
+                        gbc_lbHook.insets = new Insets(0, 0, 0, 5);
+                        gbc_lbHook.gridy = AngryGhidraProvider.GuiHookCounter;
+                        gbc_lbHook.weightx = 1;
+                        gbc_lbHook.weighty = 0.1;
+                        AngryGhidraProvider.RegHookPanel.add(lbHook, gbc_lbHook);
+                        AngryGhidraProvider.lbHooks.add(lbHook);
+                        
+                        JButton btnDel = new JButton("");
+                        btnDel.setBorder(null);
+                        btnDel.setContentAreaFilled(false);
+                        btnDel.setIcon(AngryGhidraProvider.deleteIcon);
+                        GridBagConstraints gbc_btnDel = new GridBagConstraints();
+                        gbc_btnDel.insets = new Insets(0, 0, 0, 5);
+                        gbc_btnDel.fill = GridBagConstraints.HORIZONTAL;
+                        gbc_btnDel.anchor = GridBagConstraints.NORTH;
+                        gbc_btnDel.gridx = 0;
+                        gbc_btnDel.gridy =  AngryGhidraProvider.GuiHookCounter++;
+                        gbc_btnDel.weighty = 0.1;				
+                        AngryGhidraProvider.RegHookPanel.add(btnDel, gbc_btnDel);
+                        AngryGhidraProvider.delHookBtns.add(btnDel);
+                        btnDel.addActionListener(new ActionListener() {
+                            public void actionPerformed(ActionEvent e) {
+                                AngryGhidraProvider.hooks.remove(options, regs);
+                                AngryGhidraProvider.GuiHookCounter--;
+                                AngryGhidraProvider.RegHookPanel.remove(lbHook);
+                                AngryGhidraProvider.RegHookPanel.remove(btnDel);
+                                AngryGhidraProvider.delHookBtns.remove(btnDel);
+                                AngryGhidraProvider.lbHooks.remove(lbHook);
+                                AngryGhidraProvider.RegHookPanel.repaint();
+                                AngryGhidraProvider.RegHookPanel.revalidate();
+                            }
+                        });
+                        AngryGhidraProvider.RegHookPanel.repaint();
+                        AngryGhidraProvider.RegHookPanel.revalidate();
                     }
                 }
+            }
         });
         JLabel lbRegisters = new JLabel("<html>Registers<br/>Hint: to create and store symbolic vector enter \"sv{length}\", for example \"sv16\"</html>");
         lbRegisters.setHorizontalAlignment(SwingConstants.CENTER);
         lbRegisters.setFont(new Font("SansSerif", Font.PLAIN, 12));
             
-        JPanel RegPanel = new JPanel();
+        RegPanel = new JPanel();
         GridBagLayout gbl_RegPanel = new GridBagLayout();
         gbl_RegPanel.columnWidths = new int[]{0, 0, 0, 0, 0, 0};
         gbl_RegPanel.rowHeights = new int[]{0, 0, 0};
@@ -185,7 +191,7 @@ public class HookCreation {
         RegPanel.add(btnAddButton, gbc_btnAddButton);
         btnAddButton.setBorder(null);
         btnAddButton.setContentAreaFilled(false);
-        btnAddButton.setIcon(Addicon);
+        btnAddButton.setIcon(AngryGhidraProvider.addIcon);
 
         TFHookReg1 = new JTextField();
         TFHookReg1.setBorder(TFAddress.getComponent().getBorder());
@@ -212,7 +218,7 @@ public class HookCreation {
         RegPanel.add(TFHookVal1, gbc_TFVal1);
             
         btnAddButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {               
+            public void actionPerformed(ActionEvent e) {
                 JTextField TFReg = new JTextField();
                 TFReg.setBorder(TFAddress.getComponent().getBorder());
                 GridBagConstraints gbc_TFReg = new GridBagConstraints();
@@ -224,7 +230,6 @@ public class HookCreation {
                 gbc_TFReg.weightx = 1;
                 gbc_TFReg.weighty = 0.1;
                 RegPanel.add(TFReg, gbc_TFReg);
-                TFregs.add(TFReg);
 
                 JTextField TFVal = new JTextField();
                 TFVal.setBorder(TFAddress.getComponent().getBorder());
@@ -236,13 +241,13 @@ public class HookCreation {
                 gbc_TFVal.gridy = GuiHookRegCounter;
                 gbc_TFVal.weightx = 1;
                 gbc_TFVal.weighty = 0.1;
-                RegPanel.add(TFVal, gbc_TFVal);
-                TFVals.add(TFVal);
+                RegPanel.add(TFVal, gbc_TFVal);                
+                regsVals.put(TFReg, TFVal);
 
                 JButton btnDel = new JButton("");
                 btnDel.setBorder(null);
                 btnDel.setContentAreaFilled(false);
-                btnDel.setIcon(new ImageIcon(getClass().getResource("/images/edit-delete.png")));
+                btnDel.setIcon(AngryGhidraProvider.deleteIcon);
                 GridBagConstraints gbc_btnDel = new GridBagConstraints();
                 gbc_btnDel.insets = new Insets(0, 0, 0, 5);
                 gbc_btnDel.fill = GridBagConstraints.HORIZONTAL;
@@ -259,8 +264,7 @@ public class HookCreation {
                         RegPanel.remove(TFVal);
                         RegPanel.remove(btnDel);
                         delButtons.remove(btnDel);
-                        TFregs.remove(TFReg);
-                        TFVals.remove(TFVal);
+                        regsVals.remove(TFReg, TFVal);
                         RegPanel.repaint();
                         RegPanel.revalidate();
                     }
@@ -271,7 +275,7 @@ public class HookCreation {
         });
         JPanel AddrPanel = new JPanel();
             
-        GroupLayout groupLayout = new GroupLayout(Hookframe.getContentPane());
+        GroupLayout groupLayout = new GroupLayout(hookframe.getContentPane());
         groupLayout.setHorizontalGroup(
             groupLayout.createParallelGroup(Alignment.TRAILING)
                 .addGroup(groupLayout.createSequentialGroup()
@@ -323,9 +327,9 @@ public class HookCreation {
         gbc_AddrPanel.fill = GridBagConstraints.HORIZONTAL;
         gbc_AddrPanel.gridx = 0;
         gbc_AddrPanel.gridy = 1;
-        AddrPanel.add(TFAddress.getComponent(), gbc_AddrPanel);			
+        AddrPanel.add(TFAddress.getComponent(), gbc_AddrPanel);
         
-        JLabel lblHookLength = new JLabel("Hook length");
+        JLabel lblHookLength = new JLabel("Hook length:");
         lblHookLength.setFont(new Font("SansSerif", Font.PLAIN, 12));
         GridBagConstraints gbc_lblHookLength = new GridBagConstraints();
         gbc_lblHookLength.anchor = GridBagConstraints.SOUTH;
@@ -340,7 +344,30 @@ public class HookCreation {
         gbc_TFLength.fill = GridBagConstraints.HORIZONTAL;
         gbc_TFLength.gridx = 0;
         gbc_TFLength.gridy = 3;
-        AddrPanel.add(TFLength.getComponent(), gbc_TFLength);		
-        Hookframe.getContentPane().setLayout(groupLayout);
+        AddrPanel.add(TFLength.getComponent(), gbc_TFLength);
+        hookframe.getContentPane().setLayout(groupLayout);
+    }
+    
+    
+    public static void requestClearHooks() {
+        GuiHookRegCounter = 2;
+        if (RegPanel == null) {
+            return;
+        }
+        if (delButtons != null){
+            for (JButton button : delButtons) {
+                RegPanel.remove(button);
+            }
+            delButtons.clear();
+        }
+        if (regsVals != null){
+            for (Entry<JTextField, JTextField> entry : regsVals.entrySet()) {
+                RegPanel.remove(entry.getKey());
+                RegPanel.remove(entry.getValue());
+            }
+            regsVals.clear();
+        }    	
+        RegPanel.repaint();
+        RegPanel.revalidate();
     }
 }

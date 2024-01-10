@@ -32,15 +32,15 @@ import ghidra.program.model.listing.Program;
     status = PluginStatus.STABLE,
     packageName = ExamplesPluginPackage.NAME,
     category = PluginCategoryNames.ANALYSIS,
-    shortDescription = "Use Angr from Ghidra.",
-    description = "One click symbolic execution using Angr from Your Ghidra."
+    shortDescription = "Use angr in Ghidra",
+    description = "One-click symbolic execution using angr in Ghidra"
 )
 //@formatter:on
 public class AngryGhidraPlugin extends ProgramPlugin {
 
     AngryGhidraProvider provider;
     Program program;
-    AngryGhidraPopupMenu popup;        
+    AngryGhidraPopupMenu popup;
 
     public AngryGhidraPlugin(PluginTool tool) {
         super(tool);       
@@ -61,7 +61,7 @@ public class AngryGhidraPlugin extends ProgramPlugin {
         popup.setProgram(p);
     }
 
-    private void createActions() {    	
+    private void createActions() {
         popup = new AngryGhidraPopupMenu(this, program);
     }
 }
