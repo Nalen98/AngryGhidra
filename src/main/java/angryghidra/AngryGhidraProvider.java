@@ -55,6 +55,7 @@ import ghidra.program.model.listing.Program;
 import resources.ResourceManager;
 
 public class AngryGhidraProvider extends ComponentProvider {
+	private static boolean isHookWindowClosed;
     private JPanel panel;
     private JPanel CSOPanel;
     private JPanel SAPanel;
@@ -105,7 +106,7 @@ public class AngryGhidraProvider extends ComponentProvider {
     private JScrollPane scroll;
     private JPanel MemPanel;
     private JPanel RegPanel;
-    private JTextField TFReg1;
+    private JTextField TFReg1;    
     static JPanel WMPanel;
     private JPanel ArgPanel;
     private JButton btnAddWM;
@@ -143,6 +144,8 @@ public class AngryGhidraProvider extends ComponentProvider {
         newimg = image.getScaledInstance(23, 23,  java.awt.Image.SCALE_SMOOTH); 
         deleteIcon = new ImageIcon(newimg);
         
+        
+        setHookWindowState(true);
         delRegsBtns = new ArrayList <JButton>();
         delBtnArgs = new ArrayList <JButton>();
         delMemBtns = new ArrayList <JButton>();
@@ -1123,8 +1126,11 @@ public class AngryGhidraProvider extends ComponentProvider {
         JButton btnAddHook = new JButton("Add Hook");
         btnAddHook.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                HookCreation window = new HookCreation();
-                window.main();
+            	if (getHookWindowState()) {
+            		 HookCreation window = new HookCreation();
+                     window.main();
+                     setHookWindowState(false);
+            	}               
             }
         });
         btnAddHook.setFont(new Font("SansSerif", Font.PLAIN, 11));
@@ -1586,7 +1592,15 @@ public class AngryGhidraProvider extends ComponentProvider {
         delHookBtns.clear();   
         RegHookPanel.repaint();
         RegHookPanel.revalidate();
+    }    
+    
+    public static void setHookWindowState(boolean value) {
+    	isHookWindowClosed = value;
     }
+    
+    public boolean getHookWindowState() {
+    	return isHookWindowClosed;
+    }    
 
     @Override
     public JComponent getComponent() {

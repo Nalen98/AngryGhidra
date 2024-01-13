@@ -1,6 +1,5 @@
 package angryghidra;
 
-
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
@@ -10,6 +9,8 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -24,11 +25,13 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.SwingConstants;
+import javax.swing.WindowConstants;
+
 import docking.widgets.textfield.IntegerTextField;
 
 public class HookCreation {
 
-    public static JFrame hookframe;
+    public static JFrame frame;
     public static JPanel RegPanel;
     static IntegerTextField TFAddress;
     static JTextField TFHookReg1;
@@ -43,7 +46,7 @@ public class HookCreation {
             public void run() {
                 try {
                     HookCreation window = new HookCreation();
-                    window.hookframe.setVisible(true);
+                    window.frame.setVisible(true);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -56,14 +59,20 @@ public class HookCreation {
     }
     
     private void initialize() {
-        hookframe = new JFrame();
-        hookframe.getContentPane().setMinimumSize(new Dimension(500, 333));
-        hookframe.setTitle("Add hook");
-        hookframe.setMinimumSize(new Dimension(500, 333));
-        hookframe.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        hookframe.setLocationRelativeTo(null);
+    	frame = new JFrame();
+        frame.getContentPane().setMinimumSize(new Dimension(500, 333));
+        frame.setTitle("Add hook");
+        frame.setMinimumSize(new Dimension(500, 333));        
+        frame.setLocationRelativeTo(null);
+        frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+               AngryGhidraProvider.setHookWindowState(true);
+            }
+        });
         Image icon = new ImageIcon(getClass().getResource("/images/ico.png")).getImage();
-        hookframe.setIconImage(icon);  
+        frame.setIconImage(icon);  
     
         delButtons = new ArrayList <JButton> ();
         regsVals =  new HashMap<>();
@@ -275,7 +284,7 @@ public class HookCreation {
         });
         JPanel AddrPanel = new JPanel();
             
-        GroupLayout groupLayout = new GroupLayout(hookframe.getContentPane());
+        GroupLayout groupLayout = new GroupLayout(frame.getContentPane());
         groupLayout.setHorizontalGroup(
             groupLayout.createParallelGroup(Alignment.TRAILING)
                 .addGroup(groupLayout.createSequentialGroup()
@@ -345,7 +354,7 @@ public class HookCreation {
         gbc_TFLength.gridx = 0;
         gbc_TFLength.gridy = 3;
         AddrPanel.add(TFLength.getComponent(), gbc_TFLength);
-        hookframe.getContentPane().setLayout(groupLayout);
+        frame.getContentPane().setLayout(groupLayout);
     }
     
     
