@@ -123,7 +123,7 @@ public class AngryGhidraProvider extends ComponentProvider {
 
     public AngryGhidraProvider(AngryGhidraPlugin plugin, String owner, Program program) {
         super(plugin.getTool(), owner, owner);
-        setIcon(ResourceManager.loadImage("images/main_ico.png"));
+        setIcon(ResourceManager.loadImage("images/ico.png"));
         setProgram(program);
         buildPanel();
     }
@@ -973,7 +973,7 @@ public class AngryGhidraProvider extends ComponentProvider {
 
         CSOPanel.setLayout(gl_CSOPanel);
         ImageIcon Starticon = new ImageIcon(getClass().getResource("/images/flag.png"));
-        ImageIcon Stopicon = new ImageIcon(getClass().getResource("/images/process-stop.png"));
+        ImageIcon Stopicon = new ImageIcon(getClass().getResource("/images/stop.png"));
 
         EndPanel = new JPanel();
         EndPanel.setBorder(null);

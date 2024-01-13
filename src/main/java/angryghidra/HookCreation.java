@@ -62,7 +62,7 @@ public class HookCreation {
         hookframe.setMinimumSize(new Dimension(500, 333));
         hookframe.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         hookframe.setLocationRelativeTo(null);
-        Image icon = new ImageIcon(getClass().getResource("/images/main_ico.png")).getImage();
+        Image icon = new ImageIcon(getClass().getResource("/images/ico.png")).getImage();
         hookframe.setIconImage(icon);  
     
         delButtons = new ArrayList <JButton> ();
