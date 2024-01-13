@@ -19,17 +19,17 @@ Apply patched bytes to write them to the memory of angr project:
 # Hotkeys
 
 ##### Set:  
-`Z` — set the address to **find** (destination address that you want angr should run to)  
-`X` — set the **start** address  
-`J` — set the **avoid** address (multiple choice)  
+`Z` – address to **find** (destination address that you want angr should run to)  
+`X` – **start** address  
+`J` – **avoid** address (multiple choice)  
 
 ##### Reset: 
-`K` — reset the address to **find**  
-`T` — reset the **start** address  
-`P` — reset the **avoid** address 
+`K` – address to **find**  
+`T` – **start** address  
+`P` – **avoid** address 
 
 ##### Apply bytes:
-`U` — apply patched bytes to angr project memory
+`U` – apply patched bytes to angr project memory
 
 # Installation
   
@@ -37,4 +37,4 @@ Apply patched bytes to write them to the memory of angr project:
 2) Make sure `python3` directory is added to the `PATH` (required, `Python 3` only)
 3) Download the release version of the plugin and install it in Ghidra `File → Install Extensions...` 
 4) Use Gradle to build the plugin: `GHIDRA_INSTALL_DIR=${GHIDRA_HOME} gradle` and use Ghidra to install it: `File → Install Extensions...` 
-
+5) Check the box in the "New Plugins Found" window to apply AngryGhidra plugin to your project
