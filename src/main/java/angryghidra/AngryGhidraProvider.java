@@ -17,6 +17,7 @@ import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -95,7 +96,6 @@ public class AngryGhidraProvider extends ComponentProvider {
     private JSONObject angr_options;
     private Program thisProgram;
     private String solution;
-    private String insntrace;
     private JTextArea SolutionArea;
     private JScrollPane scrollSolution;
     private JCheckBox chckbxAutoloadlibs;
@@ -1335,8 +1335,9 @@ public class AngryGhidraProvider extends ComponentProvider {
                     spath = new File(AngryGhidraProvider.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
                 } catch (URISyntaxException e2) {
                     e2.printStackTrace();
-                }
+                }                
                 spath = (spath.substring(0, spath.indexOf("lib")) + "angryghidra_script" + File.separator + "angryghidra.py");
+                
                 File Scriptfile = new File(spath);
                 String script_path = Scriptfile.getAbsolutePath();
                 
@@ -1371,8 +1372,7 @@ public class AngryGhidraProvider extends ComponentProvider {
                 if (solution != null && !solution.isEmpty()) {
                     StatusLabelFound.setText("[+] Solution found:");
                     scrollSolution.setVisible(true);
-                    SolutionArea.setText(solution.trim());
-                    traceList = Arrays.asList(insntrace.split("\\s*,\\s*"));
+                    SolutionArea.setText(solution.trim());                  
                     AddressFactory addressFactory = thisProgram.getAddressFactory();
                     for (String traceAddress: traceList) {
                         try {
@@ -1395,34 +1395,77 @@ public class AngryGhidraProvider extends ComponentProvider {
         sw.execute();
     }
 
+    public class Reader implements Runnable {
+        private volatile int result = -1;
+        private BufferedReader reader;
+        private Process proc;
+        
+        public Reader(ProcessBuilder processBuilder) {        	
+     		try {
+     			proc = processBuilder.start();
+     		} catch (Exception ex) {     			
+     			setResult(0);
+     			return;
+     		}
+            reader = new BufferedReader(new InputStreamReader(proc.getInputStream()));             
+        }
+   
+        @Override
+        public void run() {
+        	// BufferedReader is empty because of the exception above, we can't start
+        	if (getResult() == 0) {
+        		return;
+        	}
+        	String line = "";
+        	try {
+				while ((line = reader.readLine()) != null && 
+						!Thread.currentThread().isInterrupted()) {
+					if (line.contains("t:")) {		                   
+					    traceList.add(line.substring(2));                	
+					} else {
+						solution += line + "\n";
+					}
+				}
+				if (Thread.currentThread().isInterrupted()) {
+					proc.destroy();
+		            reader.close();		            
+			     	return;		              
+				}				
+				proc.waitFor();
+		        reader.close();
+		        setResult(1);
+	     		return;
+			} catch (Exception e) {				
+				setResult(0);
+     			return;
+			}
+        }
+   
+        public int getResult() {
+            return result;
+        }
+        
+        public void setResult(int value) {
+            result = value;
+        }
+    }
 
     public int runAngr(String pythonVersion, String script_path, String angrfile_path) {
         solution = "";
-        insntrace = "";
-        ProcessBuilder pb = new ProcessBuilder(pythonVersion, script_path, angrfile_path);
-        try {
-            Process p = pb.start();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-            String line = "";
-            while ((line = reader.readLine()) != null && isTerminated == false) {
-                if (line.contains("Trace:")) {
-                    insntrace = line.substring(6);
-                } else {
-                    solution += line + "\n";
-                }
-            };
-            if (isTerminated == true) {
-                p.destroy();
-                reader.close();
-                return -1;
-            }
-            p.waitFor();
-            reader.close();
-            return 1;
-        } catch (Exception e1) {
-            e1.printStackTrace();
-            return 0;
+        traceList = new ArrayList <String>();
+        
+        ProcessBuilder processBuilder = new ProcessBuilder(pythonVersion, script_path, angrfile_path);
+        Reader runnable = new Reader(processBuilder);
+        Thread thread = new Thread(runnable);
+        
+        thread.start();       
+        while(thread.isAlive()) {
+			if (isTerminated) {	
+				thread.interrupt();				
+				break;
+		    }
         }
+        return runnable.getResult();
     }
 
 
@@ -1460,7 +1503,7 @@ public class AngryGhidraProvider extends ComponentProvider {
     
     
     public void resetState() {
-        isTerminated = true;
+        isTerminated = false;
         solution = null;
         StatusLabel.setText(main_str);
         StatusLabelFound.setText("");

@@ -132,9 +132,9 @@ def main(file):
             win_block = p.factory.block(win_block)
             addresses = win_block.instruction_addrs
             for address in addresses:
-                win_sequence += hex(address) + ","
+                win_sequence += 't:' + hex(address) + '\n'
         win_sequence = win_sequence[:-1]
-        print("Trace:" + win_sequence)
+        print(win_sequence)
 
         if len(argv) > 1:
             for i in range(1, len(argv)):
