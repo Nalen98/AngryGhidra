@@ -1179,6 +1179,8 @@ public class AngryGhidraProvider extends ComponentProvider {
                 StatusLabel.setText(main_str);
                 StatusLabelFound.setText("");
                 isTerminated = false;
+                clearTraceList(false);
+                
                 angr_options = new JSONObject();
 
                 Boolean auto_load_libs = false;
@@ -1375,10 +1377,13 @@ public class AngryGhidraProvider extends ComponentProvider {
                     SolutionArea.setText(solution.trim());                  
                     AddressFactory addressFactory = thisProgram.getAddressFactory();
                     for (String traceAddress: traceList) {
-                        try {
-                            AngryGhidraPopupMenu.setColor(addressFactory.getAddress(traceAddress),
-                                    Color.getHSBColor(247, 224, 98));
-                        } catch (Exception ex) {}
+                    	Address address = addressFactory.getAddress(traceAddress);
+                        if (!shouldAvoidColor(address)){
+                            try {
+                                AngryGhidraPopupMenu.setColor(address,
+                                        Color.getHSBColor(247, 224, 98));
+                            } catch (Exception ex) {}
+                        }
                     }
                 } else {
                     StatusLabelFound.setText("[-] Solution NOT found!");
@@ -1388,7 +1393,7 @@ public class AngryGhidraProvider extends ComponentProvider {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                StatusLabel.setText("[+] Angr in progress...");
+                StatusLabel.setText("[+] angr in progress...");
                 scrollSolution.setVisible(false);
             }
         });
@@ -1452,8 +1457,6 @@ public class AngryGhidraProvider extends ComponentProvider {
 
     public int runAngr(String pythonVersion, String script_path, String angrfile_path) {
         solution = "";
-        traceList = new ArrayList <String>();
-        
         ProcessBuilder processBuilder = new ProcessBuilder(pythonVersion, script_path, angrfile_path);
         Reader runnable = new Reader(processBuilder);
         Thread thread = new Thread(runnable);
@@ -1499,8 +1502,7 @@ public class AngryGhidraProvider extends ComponentProvider {
     public static boolean symbolicVectorInputCheck(String reg, String value) {
         return !reg.isEmpty() && !value.isEmpty() && (value.matches("0x[0-9A-Fa-f]+") ||
                 value.matches("[0-9]+") || value.contains("sv"));
-    }
-    
+    }    
     
     public void resetState() {
         isTerminated = false;
@@ -1509,17 +1511,8 @@ public class AngryGhidraProvider extends ComponentProvider {
         StatusLabelFound.setText("");
         SolutionArea.setText("");
         scrollSolution.setVisible(false);
-        chckbxAutoloadlibs.setSelected(false);
-        
-        if (!traceList.isEmpty()) {
-            AddressFactory addressFactory = thisProgram.getAddressFactory();
-            for (String traceAddress: traceList) {
-                try {
-                    AngryGhidraPopupMenu.resetColor(addressFactory.getAddress(traceAddress));
-                } catch (Exception ex) {}
-            }
-            traceList = new ArrayList <String>();
-        }   
+        chckbxAutoloadlibs.setSelected(false);        
+        clearTraceList(true);
 
         // Reset blank state address
         TFBlankState.setText("");
@@ -1636,6 +1629,40 @@ public class AngryGhidraProvider extends ComponentProvider {
         RegHookPanel.repaint();
         RegHookPanel.revalidate();
     }    
+
+    private void clearTraceList(boolean fullReset){
+        if (!traceList.isEmpty()) {
+            AddressFactory addressFactory = thisProgram.getAddressFactory();
+            for (String traceAddress: traceList) {
+                Address address = addressFactory.getAddress(traceAddress);
+                if (fullReset){
+                    try {
+                        AngryGhidraPopupMenu.resetColor(address);
+                    } catch (Exception ex) {}   
+                } else {
+                    if (!shouldAvoidColor(address)){
+                        try {
+                            AngryGhidraPopupMenu.resetColor(address);
+                        } catch (Exception ex) {}
+                    }
+                }
+            }
+            traceList = new ArrayList <String>();
+        }
+    }
+
+    private boolean shouldAvoidColor(Address address){
+        boolean isBlankStateNotEmpty = AngryGhidraPopupMenu.currentBlankAddr != null;
+        boolean isAddrToFindNotEmpty = AngryGhidraPopupMenu.currentFindAddr != null;
+
+        boolean isBlankStateAddr = isBlankStateNotEmpty &&
+                address.equals(AngryGhidraPopupMenu.currentBlankAddr);
+        
+        boolean isAddrToFind = isAddrToFindNotEmpty &&
+                address.equals(AngryGhidraPopupMenu.currentFindAddr);
+        return isBlankStateAddr || isAddrToFind;
+    }
+    
     
     public static void setHookWindowState(boolean value) {
         isHookWindowClosed = value;
