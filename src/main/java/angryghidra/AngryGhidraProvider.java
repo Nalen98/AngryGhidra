@@ -56,7 +56,7 @@ import ghidra.program.model.listing.Program;
 import resources.ResourceManager;
 
 public class AngryGhidraProvider extends ComponentProvider {
-	private static boolean isHookWindowClosed;
+    private static boolean isHookWindowClosed;
     private JPanel panel;
     private JPanel CSOPanel;
     private JPanel SAPanel;
@@ -1126,11 +1126,11 @@ public class AngryGhidraProvider extends ComponentProvider {
         JButton btnAddHook = new JButton("Add Hook");
         btnAddHook.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-            	if (getHookWindowState()) {
-            		 HookCreation window = new HookCreation();
-                     window.main();
-                     setHookWindowState(false);
-            	}               
+                if (getHookWindowState()) {
+                    HookCreation window = new HookCreation();
+                    window.main();
+                    setHookWindowState(false);
+                }               
             }
         });
         btnAddHook.setFont(new Font("SansSerif", Font.PLAIN, 11));
@@ -1400,47 +1400,47 @@ public class AngryGhidraProvider extends ComponentProvider {
         private BufferedReader reader;
         private Process proc;
         
-        public Reader(ProcessBuilder processBuilder) {        	
-     		try {
-     			proc = processBuilder.start();
-     		} catch (Exception ex) {     			
-     			setResult(0);
-     			return;
-     		}
-            reader = new BufferedReader(new InputStreamReader(proc.getInputStream()));             
+        public Reader(ProcessBuilder processBuilder) {
+            try {
+                proc = processBuilder.start();
+            } catch (Exception ex) {
+                setResult(0);
+                return;
+            }
+            reader = new BufferedReader(new InputStreamReader(proc.getInputStream()));
         }
-   
+
         @Override
         public void run() {
-        	// BufferedReader is empty because of the exception above, we can't start
-        	if (getResult() == 0) {
-        		return;
-        	}
-        	String line = "";
-        	try {
-				while ((line = reader.readLine()) != null && 
-						!Thread.currentThread().isInterrupted()) {
-					if (line.contains("t:")) {		                   
-					    traceList.add(line.substring(2));                	
-					} else {
-						solution += line + "\n";
-					}
-				}
-				if (Thread.currentThread().isInterrupted()) {
-					proc.destroy();
-		            reader.close();		            
-			     	return;		              
-				}				
-				proc.waitFor();
-		        reader.close();
-		        setResult(1);
-	     		return;
-			} catch (Exception e) {				
-				setResult(0);
-     			return;
-			}
+            // BufferedReader is empty because of the exception above, we can't start
+            if (getResult() == 0) {
+                return;
+            }
+            String line = "";
+            try {
+                while ((line = reader.readLine()) != null && 
+                        !Thread.currentThread().isInterrupted()) {
+                    if (line.contains("t:")) {
+                        traceList.add(line.substring(2));
+                    } else {
+                        solution += line + "\n";
+                    }
+                }
+                if (Thread.currentThread().isInterrupted()) {
+                    proc.destroy();
+                    reader.close();
+                    return;	
+                }
+                proc.waitFor();
+                reader.close();
+                setResult(1);
+                return;
+            } catch (Exception e) {
+                setResult(0);
+                return;
+            }
         }
-   
+
         public int getResult() {
             return result;
         }
@@ -1458,12 +1458,12 @@ public class AngryGhidraProvider extends ComponentProvider {
         Reader runnable = new Reader(processBuilder);
         Thread thread = new Thread(runnable);
         
-        thread.start();       
+        thread.start();
         while(thread.isAlive()) {
-			if (isTerminated) {	
-				thread.interrupt();				
-				break;
-		    }
+            if (isTerminated) {
+                thread.interrupt();
+                break;
+            }
         }
         return runnable.getResult();
     }
@@ -1638,11 +1638,11 @@ public class AngryGhidraProvider extends ComponentProvider {
     }    
     
     public static void setHookWindowState(boolean value) {
-    	isHookWindowClosed = value;
+        isHookWindowClosed = value;
     }
     
     public boolean getHookWindowState() {
-    	return isHookWindowClosed;
+        return isHookWindowClosed;
     }    
 
     @Override
