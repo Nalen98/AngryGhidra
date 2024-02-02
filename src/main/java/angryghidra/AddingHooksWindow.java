@@ -29,13 +29,13 @@ import javax.swing.WindowConstants;
 
 import docking.widgets.textfield.IntegerTextField;
 
-public class HookCreation {
+public class AddingHooksWindow {
 
     public static JFrame frame;
     public static JPanel RegPanel;
     static IntegerTextField TFAddress;
     static JTextField TFHookReg1;
-    static JTextField TFHookVal1;  
+    static JTextField TFHookVal1;
     private static int GuiHookRegCounter;
     private static HashMap <JTextField, JTextField> regsVals;
     private static ArrayList < JButton > delButtons;
@@ -45,7 +45,7 @@ public class HookCreation {
         EventQueue.invokeLater(new Runnable() {
             public void run() {
                 try {
-                    HookCreation window = new HookCreation();
+                	AddingHooksWindow window = new AddingHooksWindow();
                     window.frame.setVisible(true);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -53,16 +53,16 @@ public class HookCreation {
             }
         });
     }
-    
-    public HookCreation() {
+
+    public AddingHooksWindow() {
         initialize();
     }
-    
+
     private void initialize() {
     	frame = new JFrame();
         frame.getContentPane().setMinimumSize(new Dimension(500, 333));
         frame.setTitle("Add hook");
-        frame.setMinimumSize(new Dimension(500, 333));        
+        frame.setMinimumSize(new Dimension(500, 333));
         frame.setLocationRelativeTo(null);
         frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         frame.addWindowListener(new WindowAdapter() {
@@ -72,12 +72,12 @@ public class HookCreation {
             }
         });
         Image icon = new ImageIcon(getClass().getResource("/images/ico.png")).getImage();
-        frame.setIconImage(icon);  
-    
+        frame.setIconImage(icon);
+
         delButtons = new ArrayList <JButton> ();
         regsVals =  new HashMap<>();
         GuiHookRegCounter = 2;
-        
+
         TFAddress = new IntegerTextField();
         TFAddress.setHexMode();
         GridBagConstraints gbc_TFAddress = new GridBagConstraints();
@@ -85,7 +85,7 @@ public class HookCreation {
         gbc_TFAddress.fill = GridBagConstraints.HORIZONTAL;
         gbc_TFAddress.gridx = 0;
         gbc_TFAddress.gridy = 1;
-        
+
         JButton btnCreate = new JButton("Add");
         btnCreate.setFont(new Font("SansSerif", Font.PLAIN, 12));
         btnCreate.addActionListener(new ActionListener() {
@@ -95,7 +95,7 @@ public class HookCreation {
                     options[0] = TFAddress.getText();
                     options[1] = TFLength.getText();
                     String[][] regs = new String[2][regsVals.size() + 1];
-                    
+
                     String reg1 = TFHookReg1.getText();
                     String val1 = TFHookVal1.getText();
                     int id = 0;
@@ -113,7 +113,7 @@ public class HookCreation {
                         }
                         AngryGhidraProvider.hooks.put(options, regs);
                         JLabel lbHook = new JLabel("Hook at " + TFAddress.getText());
-                        lbHook.setFont(new Font("SansSerif", Font.PLAIN, 12)); 
+                        lbHook.setFont(new Font("SansSerif", Font.PLAIN, 12));
                         GridBagConstraints gbc_lbHook = new GridBagConstraints();
                         gbc_lbHook.fill = GridBagConstraints.HORIZONTAL;
                         gbc_lbHook.anchor = GridBagConstraints.NORTH;
@@ -125,7 +125,7 @@ public class HookCreation {
                         gbc_lbHook.weighty = 0.1;
                         AngryGhidraProvider.RegHookPanel.add(lbHook, gbc_lbHook);
                         AngryGhidraProvider.lbHooks.add(lbHook);
-                        
+
                         JButton btnDel = new JButton("");
                         btnDel.setBorder(null);
                         btnDel.setContentAreaFilled(false);
@@ -136,7 +136,7 @@ public class HookCreation {
                         gbc_btnDel.anchor = GridBagConstraints.NORTH;
                         gbc_btnDel.gridx = 0;
                         gbc_btnDel.gridy =  AngryGhidraProvider.GuiHookCounter++;
-                        gbc_btnDel.weighty = 0.1;				
+                        gbc_btnDel.weighty = 0.1;
                         AngryGhidraProvider.RegHookPanel.add(btnDel, gbc_btnDel);
                         AngryGhidraProvider.delHookBtns.add(btnDel);
                         btnDel.addActionListener(new ActionListener() {
@@ -160,7 +160,7 @@ public class HookCreation {
         JLabel lbRegisters = new JLabel("<html>Registers<br/>Hint: to create and store symbolic vector enter \"sv{length}\", for example \"sv16\"</html>");
         lbRegisters.setHorizontalAlignment(SwingConstants.CENTER);
         lbRegisters.setFont(new Font("SansSerif", Font.PLAIN, 12));
-            
+
         RegPanel = new JPanel();
         GridBagLayout gbl_RegPanel = new GridBagLayout();
         gbl_RegPanel.columnWidths = new int[]{0, 0, 0, 0, 0, 0};
@@ -168,7 +168,7 @@ public class HookCreation {
         gbl_RegPanel.columnWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
         gbl_RegPanel.rowWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
         RegPanel.setLayout(gbl_RegPanel);
-            
+
         JLabel lblReg = new JLabel("Register");
         lblReg.setFont(new Font("SansSerif", Font.PLAIN, 12));
         GridBagConstraints gbc_lblReg = new GridBagConstraints();
@@ -176,7 +176,7 @@ public class HookCreation {
         gbc_lblReg.insets = new Insets(0, 0, 0, 5);
         gbc_lblReg.gridx = 1;
         gbc_lblReg.gridy = 0;
-        gbc_lblReg.weightx = 1;        
+        gbc_lblReg.weightx = 1;
         RegPanel.add(lblReg, gbc_lblReg);
 
         JLabel lblValue = new JLabel("Value");
@@ -186,7 +186,7 @@ public class HookCreation {
         gbc_lblValue.insets = new Insets(0, 0, 0, 5);
         gbc_lblValue.gridx = 3;
         gbc_lblValue.gridy = 0;
-        gbc_lblValue.weightx = 1;        
+        gbc_lblValue.weightx = 1;
         RegPanel.add(lblValue, gbc_lblValue);
 
         JButton btnAddButton = new JButton("");
@@ -213,8 +213,8 @@ public class HookCreation {
         gbc_TFReg1.weighty = 0.1;
         RegPanel.add(TFHookReg1, gbc_TFReg1);
         TFHookReg1.setBorder(TFAddress.getComponent().getBorder());
-        
-        TFHookVal1 = new JTextField();       
+
+        TFHookVal1 = new JTextField();
         TFHookVal1.setBorder(TFAddress.getComponent().getBorder());
         GridBagConstraints gbc_TFVal1 = new GridBagConstraints();
         gbc_TFVal1.insets = new Insets(0, 0, 0, 5);
@@ -225,7 +225,7 @@ public class HookCreation {
         gbc_TFVal1.weightx = 1;
         gbc_TFVal1.weighty = 0.1;
         RegPanel.add(TFHookVal1, gbc_TFVal1);
-            
+
         btnAddButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 JTextField TFReg = new JTextField();
@@ -250,7 +250,7 @@ public class HookCreation {
                 gbc_TFVal.gridy = GuiHookRegCounter;
                 gbc_TFVal.weightx = 1;
                 gbc_TFVal.weighty = 0.1;
-                RegPanel.add(TFVal, gbc_TFVal);                
+                RegPanel.add(TFVal, gbc_TFVal);
                 regsVals.put(TFReg, TFVal);
 
                 JButton btnDel = new JButton("");
@@ -267,7 +267,7 @@ public class HookCreation {
                 RegPanel.add(btnDel, gbc_btnDel);
                 delButtons.add(btnDel);
                 btnDel.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {	
+                    public void actionPerformed(ActionEvent e) {
                         GuiHookRegCounter--;
                         RegPanel.remove(TFReg);
                         RegPanel.remove(TFVal);
@@ -283,7 +283,7 @@ public class HookCreation {
             }
         });
         JPanel AddrPanel = new JPanel();
-            
+
         GroupLayout groupLayout = new GroupLayout(frame.getContentPane());
         groupLayout.setHorizontalGroup(
             groupLayout.createParallelGroup(Alignment.TRAILING)
@@ -320,7 +320,7 @@ public class HookCreation {
         gbl_AddrPanel.columnWeights = new double[]{1.0, Double.MIN_VALUE};
         gbl_AddrPanel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
         AddrPanel.setLayout(gbl_AddrPanel);
-        
+
         JLabel lbAddress = new JLabel("Hook at address:");
         lbAddress.setFont(new Font("SansSerif", Font.PLAIN, 12));
         GridBagConstraints gbc_lbAddress = new GridBagConstraints();
@@ -329,7 +329,7 @@ public class HookCreation {
         gbc_lbAddress.gridx = 0;
         gbc_lbAddress.gridy = 0;
         AddrPanel.add(lbAddress, gbc_lbAddress);
-        
+
         TFAddress = new IntegerTextField();
         TFAddress.setHexMode();
         GridBagConstraints gbc_AddrPanel = new GridBagConstraints();
@@ -337,7 +337,7 @@ public class HookCreation {
         gbc_AddrPanel.gridx = 0;
         gbc_AddrPanel.gridy = 1;
         AddrPanel.add(TFAddress.getComponent(), gbc_AddrPanel);
-        
+
         JLabel lblHookLength = new JLabel("Hook length:");
         lblHookLength.setFont(new Font("SansSerif", Font.PLAIN, 12));
         GridBagConstraints gbc_lblHookLength = new GridBagConstraints();
@@ -346,7 +346,7 @@ public class HookCreation {
         gbc_lblHookLength.gridx = 0;
         gbc_lblHookLength.gridy = 2;
         AddrPanel.add(lblHookLength, gbc_lblHookLength);
-        
+
         TFLength = new IntegerTextField();
         TFLength.setDecimalMode();
         GridBagConstraints gbc_TFLength = new GridBagConstraints();
@@ -356,8 +356,8 @@ public class HookCreation {
         AddrPanel.add(TFLength.getComponent(), gbc_TFLength);
         frame.getContentPane().setLayout(groupLayout);
     }
-    
-    
+
+
     public static void requestClearHooks() {
         GuiHookRegCounter = 2;
         if (RegPanel == null) {
@@ -375,7 +375,7 @@ public class HookCreation {
                 RegPanel.remove(entry.getValue());
             }
             regsVals.clear();
-        }    	
+        }
         RegPanel.repaint();
         RegPanel.revalidate();
     }

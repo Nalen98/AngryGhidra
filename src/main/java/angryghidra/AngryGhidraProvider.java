@@ -77,8 +77,8 @@ public class AngryGhidraProvider extends ComponentProvider {
     static int GuiStoreCounter;
     static int GuiHookCounter;
     private ArrayList <JButton> delRegsBtns;
-    private ArrayList <IntegerTextField> TFsOfArgs;   
-    private HashMap <IntegerTextField, IntegerTextField> vectors;    
+    private ArrayList <IntegerTextField> TFsOfArgs;
+    private HashMap <IntegerTextField, IntegerTextField> vectors;
     public static HashMap <IntegerTextField, IntegerTextField> memStore;
     private HashMap <JTextField, JTextField> presetRegs;
     private ArrayList <JButton> delMemBtns;
@@ -106,7 +106,7 @@ public class AngryGhidraProvider extends ComponentProvider {
     private JScrollPane scroll;
     private JPanel MemPanel;
     private JPanel RegPanel;
-    private JTextField TFReg1;    
+    private JTextField TFReg1;
     static JPanel WMPanel;
     private JPanel ArgPanel;
     private JButton btnAddWM;
@@ -136,21 +136,21 @@ public class AngryGhidraProvider extends ComponentProvider {
 
         addIcon = new ImageIcon(getClass().getResource("/images/add.png"));
         Image image = addIcon.getImage();
-        Image newimg = image.getScaledInstance(23, 23,  java.awt.Image.SCALE_SMOOTH); 
-        addIcon = new ImageIcon(newimg);        
-        
+        Image newimg = image.getScaledInstance(23, 23,  java.awt.Image.SCALE_SMOOTH);
+        addIcon = new ImageIcon(newimg);
+
         deleteIcon = new ImageIcon(getClass().getResource("/images/delete.png"));
         image = deleteIcon.getImage();
-        newimg = image.getScaledInstance(23, 23,  java.awt.Image.SCALE_SMOOTH); 
+        newimg = image.getScaledInstance(23, 23,  java.awt.Image.SCALE_SMOOTH);
         deleteIcon = new ImageIcon(newimg);
-        
-        
+
+
         setHookWindowState(true);
         delRegsBtns = new ArrayList <JButton>();
         delBtnArgs = new ArrayList <JButton>();
         delMemBtns = new ArrayList <JButton>();
         delStoreBtns = new ArrayList <JButton>();
-        delHookBtns = new ArrayList <JButton>();       
+        delHookBtns = new ArrayList <JButton>();
         TFsOfArgs = new ArrayList <IntegerTextField>();
         traceList = new ArrayList <String>();
         presetRegs = new HashMap<>();
@@ -163,14 +163,14 @@ public class AngryGhidraProvider extends ComponentProvider {
         GuiMemCounter = 2;
         GuiRegCounter = 2;
         GuiStoreCounter = 2;
-        GuiHookCounter = 2;        
+        GuiHookCounter = 2;
         main_str = "[+] Configuring options";
 
         TmpDir = System.getProperty("java.io.tmpdir");
         if (System.getProperty("os.name").contains("Windows") == false) {
             TmpDir += "/";
-        } 
-    
+        }
+
         MPOPanel = new JPanel();
         MPOPanel.setForeground(new Color(46, 139, 87));
         TitledBorder borderMPO = BorderFactory.createTitledBorder("Main project options");
@@ -501,7 +501,7 @@ public class AngryGhidraProvider extends ComponentProvider {
         lbMemory.setFont(new Font("SansSerif", Font.PLAIN, 12));
 
         JLabel lbRegisters = new JLabel("<html>Registers<br/>Hint: to create and store symbolic vector enter \"sv{length}\", for example \"sv16\"</html>");
-        lbRegisters.setHorizontalAlignment(SwingConstants.CENTER);
+       // lbRegisters.setHorizontalAlignment(SwingConstants.HORIZONTAL);
         lbRegisters.setFont(new Font("SansSerif", Font.PLAIN, 12));
 
         RegPanel = new JPanel();
@@ -655,51 +655,50 @@ public class AngryGhidraProvider extends ComponentProvider {
 
         GroupLayout gl_CSOPanel = new GroupLayout(CSOPanel);
         gl_CSOPanel.setHorizontalGroup(
-            gl_CSOPanel.createParallelGroup(Alignment.LEADING)
-                .addGroup(gl_CSOPanel.createSequentialGroup()
-                    .addContainerGap()
-                    .addComponent(MemPanel, GroupLayout.DEFAULT_SIZE, 257, Short.MAX_VALUE)
-                    .addGap(24))
-                .addGroup(gl_CSOPanel.createSequentialGroup()
-                    .addContainerGap()
-                    .addGroup(gl_CSOPanel.createParallelGroup(Alignment.LEADING)
-                        .addGroup(gl_CSOPanel.createSequentialGroup()
-                            .addComponent(lblWriteToMemory)
-                            .addPreferredGap(ComponentPlacement.RELATED, 150, GroupLayout.PREFERRED_SIZE))
-                        .addComponent(WMPanel, GroupLayout.DEFAULT_SIZE, 256, Short.MAX_VALUE))
-                    .addGap(25))
-                .addGroup(gl_CSOPanel.createSequentialGroup()
-                    .addContainerGap()
-                    .addComponent(RegPanel, GroupLayout.DEFAULT_SIZE, 251, Short.MAX_VALUE)
-                    .addGap(30))
-                .addGroup(gl_CSOPanel.createSequentialGroup()
-                    .addContainerGap()
-                    .addComponent(lbRegisters, GroupLayout.PREFERRED_SIZE, 258, GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(23, Short.MAX_VALUE))
-                .addGroup(gl_CSOPanel.createSequentialGroup()
-                    .addComponent(lbMemory, GroupLayout.PREFERRED_SIZE, 148, GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(145, Short.MAX_VALUE))
+        	gl_CSOPanel.createParallelGroup(Alignment.LEADING)
+        		.addGroup(gl_CSOPanel.createSequentialGroup()
+        			.addContainerGap()
+        			.addComponent(MemPanel, GroupLayout.DEFAULT_SIZE, 343, Short.MAX_VALUE)
+        			.addGap(25))
+        		.addGroup(gl_CSOPanel.createSequentialGroup()
+        			.addContainerGap()
+        			.addGroup(gl_CSOPanel.createParallelGroup(Alignment.LEADING)
+        				.addGroup(gl_CSOPanel.createSequentialGroup()
+        					.addComponent(lblWriteToMemory)
+        					.addPreferredGap(ComponentPlacement.RELATED, 237, GroupLayout.PREFERRED_SIZE))
+        				.addComponent(WMPanel, GroupLayout.DEFAULT_SIZE, 343, Short.MAX_VALUE))
+        			.addGap(25))
+        		.addGroup(gl_CSOPanel.createSequentialGroup()
+        			.addContainerGap()
+        			.addComponent(RegPanel, GroupLayout.DEFAULT_SIZE, 343, Short.MAX_VALUE)
+        			.addGap(25))
+        		.addGroup(gl_CSOPanel.createSequentialGroup()
+        			.addContainerGap()
+        			.addComponent(lbRegisters, GroupLayout.PREFERRED_SIZE, 327, Short.MAX_VALUE)
+        			)
+        		.addGroup(gl_CSOPanel.createSequentialGroup()
+        			.addComponent(lbMemory, GroupLayout.PREFERRED_SIZE, 148, GroupLayout.PREFERRED_SIZE)
+        			.addContainerGap(232, Short.MAX_VALUE))
         );
         gl_CSOPanel.setVerticalGroup(
-            gl_CSOPanel.createParallelGroup(Alignment.LEADING)
-                .addGroup(gl_CSOPanel.createSequentialGroup()
-                    .addContainerGap()
-                    .addComponent(lbMemory, GroupLayout.PREFERRED_SIZE, 13, GroupLayout.PREFERRED_SIZE)
-                    .addPreferredGap(ComponentPlacement.RELATED)
-                    .addComponent(MemPanel, GroupLayout.DEFAULT_SIZE, 40, Short.MAX_VALUE)
-                    .addGap(23)
-                    .addComponent(lblWriteToMemory)
-                    .addPreferredGap(ComponentPlacement.RELATED)
-                    .addComponent(WMPanel, GroupLayout.DEFAULT_SIZE, 39, Short.MAX_VALUE)
-                    .addGap(18)
-                    .addComponent(lbRegisters)
-                    .addGap(9)
-                    .addComponent(RegPanel, GroupLayout.DEFAULT_SIZE, 38, Short.MAX_VALUE)
-                    .addGap(54))
+        	gl_CSOPanel.createParallelGroup(Alignment.LEADING)
+        		.addGroup(gl_CSOPanel.createSequentialGroup()
+        			.addContainerGap()
+        			.addComponent(lbMemory, GroupLayout.PREFERRED_SIZE, 13, GroupLayout.PREFERRED_SIZE)
+        			.addPreferredGap(ComponentPlacement.RELATED)
+        			.addComponent(MemPanel, GroupLayout.DEFAULT_SIZE, 55, Short.MAX_VALUE)
+        			.addGap(23)
+        			.addComponent(lblWriteToMemory)
+        			.addPreferredGap(ComponentPlacement.RELATED)
+        			.addComponent(WMPanel, GroupLayout.DEFAULT_SIZE, 55, Short.MAX_VALUE)
+        			.addGap(18)
+        			.addComponent(lbRegisters)
+        			.addGap(9)
+        			.addComponent(RegPanel, GroupLayout.DEFAULT_SIZE, 57, Short.MAX_VALUE)
+        			.addGap(54))
         );
         GridBagLayout gbl_RegPanel = new GridBagLayout();
         gbl_RegPanel.columnWidths = new int[] {
-            0,
             0,
             0,
             0,
@@ -711,7 +710,6 @@ public class AngryGhidraProvider extends ComponentProvider {
             0
         };
         gbl_RegPanel.columnWeights = new double[] {
-            0.0,
             0.0,
             0.0,
             0.0,
@@ -734,7 +732,7 @@ public class AngryGhidraProvider extends ComponentProvider {
         gbc_lblReg.weightx = 1;
         RegPanel.add(lblReg, gbc_lblReg);
 
-        JLabel lblValue = new JLabel("Value");
+        JLabel lblValue = new JLabel("  Value ");
         lblValue.setFont(new Font("SansSerif", Font.PLAIN, 12));
         GridBagConstraints gbc_lblValue = new GridBagConstraints();
         gbc_lblValue.anchor = GridBagConstraints.SOUTH;
@@ -825,7 +823,7 @@ public class AngryGhidraProvider extends ComponentProvider {
                         RegPanel.remove(TFReg);
                         RegPanel.remove(TFVal);
                         RegPanel.remove(btnDel);
-                        delRegsBtns.remove(btnDel);                        
+                        delRegsBtns.remove(btnDel);
                         presetRegs.remove(TFReg, TFVal);
                         RegPanel.repaint();
                         RegPanel.revalidate();
@@ -943,7 +941,7 @@ public class AngryGhidraProvider extends ComponentProvider {
                 gbc_TFlen.weighty = 0.1;
                 MemPanel.add(TFlen.getComponent(), gbc_TFlen);
                 vectors.put(TFaddr, TFlen);
-                
+
                 JButton btnDel = new JButton("");
                 btnDel.setBorder(null);
                 btnDel.setContentAreaFilled(false);
@@ -963,7 +961,7 @@ public class AngryGhidraProvider extends ComponentProvider {
                         MemPanel.remove(TFaddr.getComponent());
                         MemPanel.remove(TFlen.getComponent());
                         MemPanel.remove(btnDel);
-                        delMemBtns.remove(btnDel);                       
+                        delMemBtns.remove(btnDel);
                         vectors.remove(TFaddr, TFlen);
                         MemPanel.repaint();
                         MemPanel.revalidate();
@@ -1016,14 +1014,14 @@ public class AngryGhidraProvider extends ComponentProvider {
         });
         btnStop.setFont(new Font("SansSerif", Font.PLAIN, 12));
         btnStop.setIcon(Stopicon);
-        
+
         btnReset = new JButton("Reset");
-        btnReset.setFont(new Font("SansSerif", Font.PLAIN, 12)); 
+        btnReset.setFont(new Font("SansSerif", Font.PLAIN, 12));
         btnReset.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 resetState();
             }
-        });              
+        });
 
         GroupLayout gl_EndPanel = new GroupLayout(EndPanel);
         gl_EndPanel.setHorizontalGroup(
@@ -1043,7 +1041,7 @@ public class AngryGhidraProvider extends ComponentProvider {
                             .addComponent(btnStop, GroupLayout.DEFAULT_SIZE, 116, Short.MAX_VALUE)
                             .addGap(77)
                             .addComponent(btnReset, GroupLayout.DEFAULT_SIZE, 116, Short.MAX_VALUE)
-                            .addGap(1))                        
+                            .addGap(1))
                         .addGroup(gl_EndPanel.createSequentialGroup()
                             .addGap(10)
                             .addComponent(StatusLabel, GroupLayout.DEFAULT_SIZE, 495, Short.MAX_VALUE)))
@@ -1060,7 +1058,7 @@ public class AngryGhidraProvider extends ComponentProvider {
                     .addGroup(gl_EndPanel.createParallelGroup(Alignment.BASELINE)
                         .addComponent(btnRun, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE)
                         .addComponent(btnStop, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE)
-                        .addComponent(btnReset, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE))                    
+                        .addComponent(btnReset, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE))
                     .addPreferredGap(ComponentPlacement.RELATED)
                     .addComponent(lbStatus, GroupLayout.PREFERRED_SIZE, 13, GroupLayout.PREFERRED_SIZE)
                     .addPreferredGap(ComponentPlacement.RELATED)
@@ -1127,10 +1125,10 @@ public class AngryGhidraProvider extends ComponentProvider {
         btnAddHook.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 if (getHookWindowState()) {
-                    HookCreation window = new HookCreation();
+                	AddingHooksWindow window = new AddingHooksWindow();
                     window.main();
                     setHookWindowState(false);
-                }               
+                }
             }
         });
         btnAddHook.setFont(new Font("SansSerif", Font.PLAIN, 11));
@@ -1180,7 +1178,7 @@ public class AngryGhidraProvider extends ComponentProvider {
                 StatusLabelFound.setText("");
                 isTerminated = false;
                 clearTraceList(false);
-                
+
                 angr_options = new JSONObject();
 
                 Boolean auto_load_libs = false;
@@ -1208,7 +1206,7 @@ public class AngryGhidraProvider extends ComponentProvider {
                 TFFind.setBorder(Classic_border);
                 String find_addr = TFFind.getText();
                 angr_options.put("find_address", find_addr);
-                
+
                 if (chckbxAvoidAddresses.isSelected()) {
                     if (!textArea.getText().replaceAll("\\s+", "").matches("[0x0-9a-fA-F, /,]+")) {
                         textArea.setBorder(new LineBorder(Color.red, 1));
@@ -1219,7 +1217,7 @@ public class AngryGhidraProvider extends ComponentProvider {
                     String avoid = textArea.getText().replaceAll("\\s+", "");
                     angr_options.put("avoid_address", avoid);
                 }
-                
+
                 if (chckbxArg.isSelected()) {
                     if (!TFFirstArg.getText().isEmpty()) {
                         JSONObject argDetails = new JSONObject();
@@ -1258,11 +1256,11 @@ public class AngryGhidraProvider extends ComponentProvider {
                         String val = entry.getValue().getText();
                         if (!addr.isEmpty() && !val.isEmpty()) {
                             storeDetails.put(addr, val);
-                    }                    	
+                    }
                     }
                     angr_options.put("mem_store", storeDetails);
                 }
-                
+
                 String reg1 = TFReg1.getText();
                 String val1 = TFVal1.getText();
                 if (symbolicVectorInputCheck(reg1, val1)) {
@@ -1298,7 +1296,7 @@ public class AngryGhidraProvider extends ComponentProvider {
                     angr_options.put("hooks", hookList);
                 }
                 panel.revalidate();
-                
+
                 String binary_path = thisProgram.getExecutablePath();
 
                 if (System.getProperty("os.name").contains("Windows")) {
@@ -1307,12 +1305,12 @@ public class AngryGhidraProvider extends ComponentProvider {
                 }
                 angr_options.put("binary_file", binary_path);
                 angr_options.put("base_address", "0x" + Long.toHexString(thisProgram.getMinAddress().getOffset()));
-                
-                if (thisProgram.getExecutableFormat().contains("Raw Binary")) {                                       	
-                    String arch = thisProgram.getLanguage().toString().substring(0, thisProgram.getLanguage().toString().indexOf("/"));                    
+
+                if (thisProgram.getExecutableFormat().contains("Raw Binary")) {
+                    String arch = thisProgram.getLanguage().toString().substring(0, thisProgram.getLanguage().toString().indexOf("/"));
                     angr_options.put("raw_binary_arch", arch);
                 }
-                
+
                 File angrfile = new File(TmpDir + "angr_options.json");
                 if (angrfile.exists()) {
                     angrfile.delete();
@@ -1337,12 +1335,12 @@ public class AngryGhidraProvider extends ComponentProvider {
                     spath = new File(AngryGhidraProvider.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
                 } catch (URISyntaxException e2) {
                     e2.printStackTrace();
-                }                
+                }
                 spath = (spath.substring(0, spath.indexOf("lib")) + "angryghidra_script" + File.separator + "angryghidra.py");
-                
+
                 File Scriptfile = new File(spath);
                 String script_path = Scriptfile.getAbsolutePath();
-                
+
                 //PythonVersion check (issue#5)
                 if (runAngr("python3", script_path, angrfile.getAbsolutePath()) == 0) {
                     ProcessBuilder pb = new ProcessBuilder("python", "--version");
@@ -1353,8 +1351,8 @@ public class AngryGhidraProvider extends ComponentProvider {
                         while ((line = reader.readLine()) != null) {
                             if (compareVersion(line.substring(7), "3.4") == -1 && compareVersion(line.substring(7), "3.0") == 1) {
                                 runAngr("python", script_path, angrfile.getAbsolutePath());
-                            }    
-                        };           
+                            }
+                        };
                         p.waitFor();
                         reader.close();
                     } catch (Exception e1) {
@@ -1374,7 +1372,7 @@ public class AngryGhidraProvider extends ComponentProvider {
                 if (solution != null && !solution.isEmpty()) {
                     StatusLabelFound.setText("[+] Solution found:");
                     scrollSolution.setVisible(true);
-                    SolutionArea.setText(solution.trim());                  
+                    SolutionArea.setText(solution.trim());
                     AddressFactory addressFactory = thisProgram.getAddressFactory();
                     for (String traceAddress: traceList) {
                     	Address address = addressFactory.getAddress(traceAddress);
@@ -1404,7 +1402,7 @@ public class AngryGhidraProvider extends ComponentProvider {
         private volatile int result = -1;
         private BufferedReader reader;
         private Process proc;
-        
+
         public Reader(ProcessBuilder processBuilder) {
             try {
                 proc = processBuilder.start();
@@ -1423,7 +1421,7 @@ public class AngryGhidraProvider extends ComponentProvider {
             }
             String line = "";
             try {
-                while ((line = reader.readLine()) != null && 
+                while ((line = reader.readLine()) != null &&
                         !Thread.currentThread().isInterrupted()) {
                     if (line.contains("t:")) {
                         traceList.add(line.substring(2));
@@ -1434,7 +1432,7 @@ public class AngryGhidraProvider extends ComponentProvider {
                 if (Thread.currentThread().isInterrupted()) {
                     proc.destroy();
                     reader.close();
-                    return;	
+                    return;
                 }
                 proc.waitFor();
                 reader.close();
@@ -1449,7 +1447,7 @@ public class AngryGhidraProvider extends ComponentProvider {
         public int getResult() {
             return result;
         }
-        
+
         public void setResult(int value) {
             result = value;
         }
@@ -1460,7 +1458,7 @@ public class AngryGhidraProvider extends ComponentProvider {
         ProcessBuilder processBuilder = new ProcessBuilder(pythonVersion, script_path, angrfile_path);
         Reader runnable = new Reader(processBuilder);
         Thread thread = new Thread(runnable);
-        
+
         thread.start();
         while(thread.isAlive()) {
             if (isTerminated) {
@@ -1475,7 +1473,7 @@ public class AngryGhidraProvider extends ComponentProvider {
     public int compareVersion(String version1, String version2) {
         String[] arr1 = version1.split("\\.");
         String[] arr2 = version2.split("\\.");
-    
+
         int i=0;
         while (i<arr1.length || i<arr2.length) {
             if (i<arr1.length && i<arr2.length) {
@@ -1492,18 +1490,18 @@ public class AngryGhidraProvider extends ComponentProvider {
             if (Integer.parseInt(arr2[i]) != 0) {
                     return -1;
                 }
-            }	 
+            }
             i++;
-        }	 
+        }
         return 0;
     }
-    
-    
+
+
     public static boolean symbolicVectorInputCheck(String reg, String value) {
         return !reg.isEmpty() && !value.isEmpty() && (value.matches("0x[0-9A-Fa-f]+") ||
                 value.matches("[0-9]+") || value.contains("sv"));
-    }    
-    
+    }
+
     public void resetState() {
         isTerminated = false;
         solution = null;
@@ -1511,7 +1509,7 @@ public class AngryGhidraProvider extends ComponentProvider {
         StatusLabelFound.setText("");
         SolutionArea.setText("");
         scrollSolution.setVisible(false);
-        chckbxAutoloadlibs.setSelected(false);        
+        chckbxAutoloadlibs.setSelected(false);
         clearTraceList(true);
 
         // Reset blank state address
@@ -1521,14 +1519,14 @@ public class AngryGhidraProvider extends ComponentProvider {
             AngryGhidraPopupMenu.resetColor(AngryGhidraPopupMenu.currentBlankAddr);
             AngryGhidraPopupMenu.currentBlankAddr = null;
         }
-        
+
         // Reset find address
         TFFind.setText("");
         if (AngryGhidraPopupMenu.currentFindAddr != null) {
             AngryGhidraPopupMenu.resetColor(AngryGhidraPopupMenu.currentFindAddr);
             AngryGhidraPopupMenu.currentFindAddr = null;
-        }  
-                
+        }
+
         // Reset avoid addresses panel
         textArea.setText("");
         if (!AngryGhidraPopupMenu.currentAvoidAddresses.isEmpty()) {
@@ -1540,7 +1538,7 @@ public class AngryGhidraProvider extends ComponentProvider {
         chckbxAvoidAddresses.setSelected(false);
         scroll.setVisible(false);
         MPOPanel.revalidate();
-        
+
         // Reset arguments panel
         GuiArgCounter = 2;
         lbLenArg.setVisible(false);
@@ -1555,14 +1553,14 @@ public class AngryGhidraProvider extends ComponentProvider {
         TFsOfArgs.clear();
         TFFirstArg.setText("");
         TFFirstArg.getComponent().setVisible(false);
-        chckbxArg.setSelected(false); 
+        chckbxArg.setSelected(false);
         ArgPanel.repaint();
         ArgPanel.revalidate();
-        
+
         // Reset symbolic vectors in memory
         GuiMemCounter = 2;
         TFsymbmem_addr.setText("");
-        TFsymbmem_len.setText("");  
+        TFsymbmem_len.setText("");
         for (Entry<IntegerTextField, IntegerTextField> entry : vectors.entrySet()) {
             IntegerTextField TFaddr = entry.getKey();
             IntegerTextField TFlen = entry.getValue();
@@ -1572,11 +1570,11 @@ public class AngryGhidraProvider extends ComponentProvider {
         for (JButton button : delMemBtns) {
             MemPanel.remove(button);
         }
-        vectors.clear(); 
+        vectors.clear();
         delMemBtns.clear();
         MemPanel.repaint();
         MemPanel.revalidate();
-        
+
         // Reset mem set contents
         GuiStoreCounter = 2;
         for (Entry<IntegerTextField, IntegerTextField> entry : memStore.entrySet()) {
@@ -1594,8 +1592,8 @@ public class AngryGhidraProvider extends ComponentProvider {
         delStoreBtns.clear();
         WMPanel.repaint();
         WMPanel.revalidate();
-        
-        
+
+
         // Reset preset registers
         GuiRegCounter = 2;
         for (Entry<JTextField, JTextField> entry : presetRegs.entrySet()) {
@@ -1613,10 +1611,10 @@ public class AngryGhidraProvider extends ComponentProvider {
         presetRegs.clear();
         RegPanel.repaint();
         RegPanel.revalidate();
-        
+
         // Reset all hooks
-        GuiHookCounter = 2;      
-        HookCreation.requestClearHooks();
+        GuiHookCounter = 2;
+        AddingHooksWindow.requestClearHooks();
         hooks.clear();
         for (JButton button : delHookBtns) {
             RegHookPanel.remove(button);
@@ -1625,10 +1623,10 @@ public class AngryGhidraProvider extends ComponentProvider {
             RegHookPanel.remove(label);
         }
         lbHooks.clear();
-        delHookBtns.clear();   
+        delHookBtns.clear();
         RegHookPanel.repaint();
         RegHookPanel.revalidate();
-    }    
+    }
 
     private void clearTraceList(boolean fullReset){
         if (!traceList.isEmpty()) {
@@ -1638,7 +1636,7 @@ public class AngryGhidraProvider extends ComponentProvider {
                 if (fullReset){
                     try {
                         AngryGhidraPopupMenu.resetColor(address);
-                    } catch (Exception ex) {}   
+                    } catch (Exception ex) {}
                 } else {
                     if (!shouldAvoidColor(address)){
                         try {
@@ -1657,20 +1655,20 @@ public class AngryGhidraProvider extends ComponentProvider {
 
         boolean isBlankStateAddr = isBlankStateNotEmpty &&
                 address.equals(AngryGhidraPopupMenu.currentBlankAddr);
-        
+
         boolean isAddrToFind = isAddrToFindNotEmpty &&
                 address.equals(AngryGhidraPopupMenu.currentFindAddr);
         return isBlankStateAddr || isAddrToFind;
     }
-    
-    
+
+
     public static void setHookWindowState(boolean value) {
         isHookWindowClosed = value;
     }
-    
+
     public boolean getHookWindowState() {
         return isHookWindowClosed;
-    }    
+    }
 
     @Override
     public JComponent getComponent() {
@@ -1679,5 +1677,5 @@ public class AngryGhidraProvider extends ComponentProvider {
 
     public void setProgram(Program p) {
         thisProgram = p;
-    }    
+    }
 }
