@@ -8,6 +8,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Insets;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -387,7 +388,7 @@ public class AngryGhidraProvider extends ComponentProvider {
         lbFind.setFont(new Font("SansSerif", Font.PLAIN, 12));
 
         TFFind = new JTextField();
-        TFFind.setMinimumSize(new java.awt.Dimension(100, 20));
+        TFFind.setMinimumSize(new Dimension(100, 20));
         TFFind.setBorder(Classic_border);
         Font Classic_font = TFFind.getFont();
         TFFind.addKeyListener(new KeyAdapter() {
@@ -399,7 +400,7 @@ public class AngryGhidraProvider extends ComponentProvider {
             }
         });
 
-        chckbxAvoidAddresses = new JCheckBox("Avoid addresses");
+        chckbxAvoidAddresses = new JCheckBox("Аvoid addresses");
         chckbxAvoidAddresses.setForeground(new Color(255, 0, 0));
         chckbxAvoidAddresses.setToolTipText("");
         chckbxAvoidAddresses.setFont(new Font("SansSerif", Font.PLAIN, 12));
@@ -422,7 +423,7 @@ public class AngryGhidraProvider extends ComponentProvider {
                                 AngryGhidraPopupMenu.currentAvoidAddresses.remove(i);
                             }
                         }
-                    } catch (Exception ex) {};
+                    } catch (Exception ex) {}
                 }
             }
         });
@@ -446,52 +447,62 @@ public class AngryGhidraProvider extends ComponentProvider {
 
         GroupLayout gl_MPOPanel = new GroupLayout(MPOPanel);
         gl_MPOPanel.setHorizontalGroup(
-            gl_MPOPanel.createParallelGroup(Alignment.TRAILING)
-                .addGroup(gl_MPOPanel.createSequentialGroup()
-                    .addGap(11)
-                    .addGroup(gl_MPOPanel.createParallelGroup(Alignment.LEADING)
-                        .addGroup(gl_MPOPanel.createSequentialGroup()
-                            .addComponent(chckbxAutoloadlibs, GroupLayout.PREFERRED_SIZE, 148, GroupLayout.PREFERRED_SIZE)
-                            .addContainerGap(73, Short.MAX_VALUE))
-                        .addGroup(gl_MPOPanel.createSequentialGroup()
-                            .addGroup(gl_MPOPanel.createParallelGroup(Alignment.LEADING, false)
-                                .addGroup(gl_MPOPanel.createParallelGroup(Alignment.LEADING, false)
+        	gl_MPOPanel.createParallelGroup(Alignment.TRAILING)
+        		.addGroup(gl_MPOPanel.createSequentialGroup()
+        				.addGap(11)
+                        .addGroup(gl_MPOPanel.createParallelGroup(Alignment.LEADING)
+                            .addGroup(gl_MPOPanel.createSequentialGroup()
+                                .addComponent(chckbxAutoloadlibs, GroupLayout.PREFERRED_SIZE, 134, GroupLayout.PREFERRED_SIZE)
+                                .addContainerGap(73, Short.MAX_VALUE))
+                            .addGroup(gl_MPOPanel.createSequentialGroup()
+                                .addGroup(gl_MPOPanel.createParallelGroup(Alignment.LEADING)
+                                    .addGroup(gl_MPOPanel.createParallelGroup(Alignment.LEADING)
+                                        .addGroup(gl_MPOPanel.createSequentialGroup()
+                                            .addComponent(chckbxBlankState, GroupLayout.PREFERRED_SIZE, 134, GroupLayout.PREFERRED_SIZE)
+                                            .addPreferredGap(ComponentPlacement.RELATED, 18, Short.MAX_VALUE))
+                                        .addGroup(gl_MPOPanel.createSequentialGroup()
+                                            .addComponent(chckbxAvoidAddresses, GroupLayout.PREFERRED_SIZE, 134, GroupLayout.PREFERRED_SIZE)
+                                            .addPreferredGap(ComponentPlacement.RELATED, 18, Short.MAX_VALUE)))
                                     .addGroup(gl_MPOPanel.createSequentialGroup()
-                                        .addComponent(chckbxBlankState, GroupLayout.PREFERRED_SIZE, 134, GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(ComponentPlacement.RELATED, 18, Short.MAX_VALUE))
-                                    .addGroup(gl_MPOPanel.createSequentialGroup()
-                                        .addComponent(chckbxAvoidAddresses, GroupLayout.PREFERRED_SIZE, 144, GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(ComponentPlacement.UNRELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                                .addGroup(gl_MPOPanel.createSequentialGroup()
-                                    .addGap(21)
-                                    .addComponent(lbFind, GroupLayout.PREFERRED_SIZE, 102, GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(ComponentPlacement.RELATED)))
-                            .addGroup(gl_MPOPanel.createParallelGroup(Alignment.LEADING)
-                                .addComponent(TFBlankState, GroupLayout.DEFAULT_SIZE, 54, Short.MAX_VALUE)
-                                .addComponent(TFFind, GroupLayout.DEFAULT_SIZE, 54, Short.MAX_VALUE)
-                                .addComponent(scroll, GroupLayout.DEFAULT_SIZE, 54, Short.MAX_VALUE))
-                            .addGap(15))))
+                                        .addGap(22)
+                                        .addComponent(lbFind, GroupLayout.PREFERRED_SIZE, 102, GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(ComponentPlacement.RELATED)))
+                                .addGroup(gl_MPOPanel.createParallelGroup(Alignment.LEADING)
+                                    .addComponent(TFBlankState, GroupLayout.DEFAULT_SIZE, 54, Short.MAX_VALUE)
+                                    .addComponent(TFFind, GroupLayout.DEFAULT_SIZE, 54, Short.MAX_VALUE)
+                                    .addComponent(scroll, GroupLayout.DEFAULT_SIZE, 54, Short.MAX_VALUE))
+                                .addGap(15))))
         );
         gl_MPOPanel.setVerticalGroup(
-            gl_MPOPanel.createParallelGroup(Alignment.LEADING)
-                .addGroup(gl_MPOPanel.createSequentialGroup()
-                    .addGap(6)
-                    .addComponent(chckbxAutoloadlibs, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE)
-                    .addGap(6)
-                    .addGroup(gl_MPOPanel.createParallelGroup(Alignment.BASELINE)
-                        .addGap(14)
-                        .addComponent(chckbxBlankState)
-                        .addComponent(TFBlankState, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                        .addGap(10)
-                    .addGroup(gl_MPOPanel.createParallelGroup(Alignment.BASELINE)
-                        .addComponent(TFFind, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                        .addComponent(lbFind, GroupLayout.PREFERRED_SIZE, 13, GroupLayout.PREFERRED_SIZE))
-                    .addPreferredGap(ComponentPlacement.UNRELATED)
-                    .addGroup(gl_MPOPanel.createParallelGroup(Alignment.BASELINE)
-                        .addComponent(scroll, GroupLayout.DEFAULT_SIZE, 50, Short.MAX_VALUE)
-                        .addComponent(chckbxAvoidAddresses, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE))
-                    .addContainerGap())
+        	gl_MPOPanel.createParallelGroup(Alignment.LEADING)
+        		.addGroup(gl_MPOPanel.createSequentialGroup()
+        			.addGap(13)
+        			.addComponent(chckbxAutoloadlibs)
+        			.addGroup(gl_MPOPanel.createParallelGroup(Alignment.BASELINE)
+        					.addGroup(gl_MPOPanel.createSequentialGroup()
+            						.addGap(13)
+            						.addComponent(chckbxBlankState))
+        					.addGroup(gl_MPOPanel.createSequentialGroup()
+                					.addGap(10)
+                					.addComponent(TFBlankState, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
+        			.addGroup(gl_MPOPanel.createSequentialGroup()
+	        			.addGroup(gl_MPOPanel.createParallelGroup(Alignment.BASELINE)
+	    					.addGroup(gl_MPOPanel.createSequentialGroup()
+		    						.addGap(14)
+		    						.addComponent(lbFind))
+	    					.addGroup(gl_MPOPanel.createSequentialGroup()
+		        					.addGap(10)
+		        					.addComponent(TFFind, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
+	        			.addGroup(gl_MPOPanel.createParallelGroup(Alignment.BASELINE)
+	    					.addGroup(gl_MPOPanel.createSequentialGroup()
+	    						.addGap(10)
+	    						.addComponent(chckbxAvoidAddresses))
+	        				.addGroup(gl_MPOPanel.createSequentialGroup()
+	        					.addGap(10)
+	        					.addComponent(scroll, GroupLayout.PREFERRED_SIZE, 45, Short.MAX_VALUE))))
+        			.addContainerGap())
         );
+        gl_MPOPanel.setHonorsVisibility(false);
         MPOPanel.setLayout(gl_MPOPanel);
 
         MemPanel = new JPanel();
@@ -975,6 +986,8 @@ public class AngryGhidraProvider extends ComponentProvider {
         CSOPanel.setLayout(gl_CSOPanel);
         ImageIcon Starticon = new ImageIcon(getClass().getResource("/images/flag.png"));
         ImageIcon Stopicon = new ImageIcon(getClass().getResource("/images/stop.png"));
+        ImageIcon resetIcon = new ImageIcon(getClass().getResource("/images/reset.png"));
+        resetIcon = new ImageIcon(resetIcon.getImage().getScaledInstance(18, 18,  java.awt.Image.SCALE_SMOOTH));
 
         EndPanel = new JPanel();
         EndPanel.setBorder(null);
@@ -1016,6 +1029,7 @@ public class AngryGhidraProvider extends ComponentProvider {
         btnStop.setIcon(Stopicon);
 
         btnReset = new JButton("Reset");
+        btnReset.setIcon(resetIcon);
         btnReset.setFont(new Font("SansSerif", Font.PLAIN, 12));
         btnReset.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -1128,6 +1142,8 @@ public class AngryGhidraProvider extends ComponentProvider {
                 	AddingHooksWindow window = new AddingHooksWindow();
                     window.main();
                     setHookWindowState(false);
+                } else {
+                	AddingHooksWindow.toFront();
                 }
             }
         });
