@@ -158,7 +158,6 @@ public class AddingHooksWindow {
             }
         });
         JLabel lbRegisters = new JLabel("<html>Registers<br/>Hint: to create and store symbolic vector enter \"sv{length}\", for example \"sv16\"</html>");
-        lbRegisters.setHorizontalAlignment(SwingConstants.CENTER);
         lbRegisters.setFont(new Font("SansSerif", Font.PLAIN, 12));
 
         RegPanel = new JPanel();
@@ -179,7 +178,7 @@ public class AddingHooksWindow {
         gbc_lblReg.weightx = 1;
         RegPanel.add(lblReg, gbc_lblReg);
 
-        JLabel lblValue = new JLabel("Value");
+        JLabel lblValue = new JLabel("  Value ");
         lblValue.setFont(new Font("SansSerif", Font.PLAIN, 12));
         GridBagConstraints gbc_lblValue = new GridBagConstraints();
         gbc_lblValue.anchor = GridBagConstraints.SOUTH;
@@ -275,11 +274,13 @@ public class AddingHooksWindow {
                         delButtons.remove(btnDel);
                         regsVals.remove(TFReg, TFVal);
                         RegPanel.repaint();
-                        RegPanel.revalidate();
+                        RegPanel.revalidate();                        
+                        frame.setSize(frame.getWidth(), frame.getHeight() - 25);   
                     }
-                });
+                });                
                 RegPanel.repaint();
                 RegPanel.revalidate();
+                frame.setSize(frame.getWidth(), frame.getHeight() + 25);   
             }
         });
         JPanel AddrPanel = new JPanel();
@@ -379,4 +380,9 @@ public class AddingHooksWindow {
         RegPanel.repaint();
         RegPanel.revalidate();
     }
+    
+    public static void toFront() {
+        frame.toFront();
+    }
+    
 }
