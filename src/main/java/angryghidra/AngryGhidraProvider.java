@@ -45,6 +45,8 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import org.json.JSONArray;
@@ -122,7 +124,8 @@ public class AngryGhidraProvider extends ComponentProvider {
     public JLabel lbLenArg;
     public JButton btnAddArg;
     public JPanel MPOPanel;
-
+    Border textAreaDefaultBorder;
+    
     public AngryGhidraProvider(AngryGhidraPlugin plugin, String owner, Program program) {
         super(plugin.getTool(), owner, owner);
         setIcon(ResourceManager.loadImage("images/ico.png"));
@@ -136,15 +139,15 @@ public class AngryGhidraProvider extends ComponentProvider {
         setVisible(true);
 
         addIcon = new ImageIcon(getClass().getResource("/images/add.png"));
+        deleteIcon = new ImageIcon(getClass().getResource("/images/delete.png"));   
+        
         Image image = addIcon.getImage();
-        Image newimg = image.getScaledInstance(23, 23,  java.awt.Image.SCALE_SMOOTH);
+        Image newimg = image.getScaledInstance(21, 21,  java.awt.Image.SCALE_SMOOTH);
         addIcon = new ImageIcon(newimg);
-
-        deleteIcon = new ImageIcon(getClass().getResource("/images/delete.png"));
+        
         image = deleteIcon.getImage();
-        newimg = image.getScaledInstance(23, 23,  java.awt.Image.SCALE_SMOOTH);
+        newimg = image.getScaledInstance(21, 21,  java.awt.Image.SCALE_SMOOTH);
         deleteIcon = new ImageIcon(newimg);
-
 
         setHookWindowState(true);
         delRegsBtns = new ArrayList <JButton>();
@@ -171,6 +174,8 @@ public class AngryGhidraProvider extends ComponentProvider {
         if (System.getProperty("os.name").contains("Windows") == false) {
             TmpDir += "/";
         }
+        
+        
 
         MPOPanel = new JPanel();
         MPOPanel.setForeground(new Color(46, 139, 87));
@@ -212,7 +217,7 @@ public class AngryGhidraProvider extends ComponentProvider {
                     .addGroup(gl_SAPanel.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(chckbxArg))
-                    .addComponent(ArgPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(ArgPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
                 .addGap(20))
         );
 
@@ -243,7 +248,7 @@ public class AngryGhidraProvider extends ComponentProvider {
 
         btnAddArg = new JButton("");
         GridBagConstraints gbc_btnAddArg = new GridBagConstraints();
-        gbc_btnAddArg.anchor = GridBagConstraints.NORTH;
+        gbc_btnAddArg.anchor = GridBagConstraints.CENTER;
         gbc_btnAddArg.fill = GridBagConstraints.HORIZONTAL;
         gbc_btnAddArg.insets = new Insets(0, 0, 0, 5);
         gbc_btnAddArg.gridx = 0;
@@ -258,7 +263,7 @@ public class AngryGhidraProvider extends ComponentProvider {
         lbLenArg = new JLabel("Length");
         GridBagConstraints gbc_lbLenArg = new GridBagConstraints();
         gbc_lbLenArg.insets = new Insets(0, 0, 0, 5);
-        gbc_lbLenArg.anchor = GridBagConstraints.NORTH;
+        gbc_lbLenArg.anchor = GridBagConstraints.CENTER;
         gbc_lbLenArg.gridwidth = 3;
         gbc_lbLenArg.gridx = 1;
         gbc_lbLenArg.gridy = 0;
@@ -268,7 +273,7 @@ public class AngryGhidraProvider extends ComponentProvider {
         lbLenArg.setVisible(false);
 
         TFFirstArg = new IntegerTextField();
-        Border Classic_border = TFFirstArg.getComponent().getBorder();
+       // Classic_border = TFFirstArg.getComponent().getBorder();
         GridBagConstraints gbc_TFArglen = new GridBagConstraints();
         gbc_TFArglen.insets = new Insets(0, 0, 0, 5);
         gbc_TFArglen.fill = GridBagConstraints.HORIZONTAL;
@@ -313,7 +318,7 @@ public class AngryGhidraProvider extends ComponentProvider {
                 IntegerTextField TFArg = new IntegerTextField();
                 GridBagConstraints gbc_TFArg = new GridBagConstraints();
                 gbc_TFArg.fill = GridBagConstraints.HORIZONTAL;
-                gbc_TFArg.anchor = GridBagConstraints.NORTH;
+                gbc_TFArg.anchor = GridBagConstraints.CENTER;
                 gbc_TFArg.gridwidth = 3;
                 gbc_TFArg.gridx = 1;
                 gbc_TFArg.insets = new Insets(0, 0, 0, 5);
@@ -330,7 +335,7 @@ public class AngryGhidraProvider extends ComponentProvider {
                 GridBagConstraints gbc_btnDel = new GridBagConstraints();
                 gbc_btnDel.insets = new Insets(0, 0, 0, 5);
                 gbc_btnDel.fill = GridBagConstraints.HORIZONTAL;
-                gbc_btnDel.anchor = GridBagConstraints.NORTH;
+                gbc_btnDel.anchor = GridBagConstraints.CENTER;
                 gbc_btnDel.gridx = 0;
                 gbc_btnDel.gridy = GuiArgCounter++;
                 gbc_btnDel.weighty = 0.1;
@@ -356,8 +361,7 @@ public class AngryGhidraProvider extends ComponentProvider {
         chckbxAutoloadlibs = new JCheckBox("Auto load libs");
         chckbxAutoloadlibs.setFont(new Font("SansSerif", Font.PLAIN, 12));
 
-        TFBlankState = new JTextField();
-        TFBlankState.setBorder(Classic_border);
+        TFBlankState = new JTextField();       
         TFBlankState.setVisible(false);
         TFBlankState.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent e) {
@@ -368,7 +372,7 @@ public class AngryGhidraProvider extends ComponentProvider {
             }
         });
 
-        chckbxBlankState = new JCheckBox("Blank State");
+        chckbxBlankState = new JCheckBox("Blank state");
         chckbxBlankState.setFont(new Font("SansSerif", Font.PLAIN, 12));
         chckbxBlankState.addItemListener(
             new ItemListener() {
@@ -389,7 +393,7 @@ public class AngryGhidraProvider extends ComponentProvider {
 
         TFFind = new JTextField();
         TFFind.setMinimumSize(new Dimension(100, 20));
-        TFFind.setBorder(Classic_border);
+       // TFFind.setBorder(Classic_border);
         Font Classic_font = TFFind.getFont();
         TFFind.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent e) {
@@ -406,7 +410,7 @@ public class AngryGhidraProvider extends ComponentProvider {
         chckbxAvoidAddresses.setFont(new Font("SansSerif", Font.PLAIN, 12));
 
         textArea = new JTextArea();
-        Border textAreaDefaultBorder = textArea.getBorder();
+        textAreaDefaultBorder = textArea.getBorder();
         textArea.setMinimumSize(new Dimension(40, 40));
         textArea.setToolTipText("Enter the hex values separated by comma.");
         textArea.setFont(Classic_font);
@@ -476,7 +480,7 @@ public class AngryGhidraProvider extends ComponentProvider {
         gl_MPOPanel.setVerticalGroup(
         	gl_MPOPanel.createParallelGroup(Alignment.LEADING)
         		.addGroup(gl_MPOPanel.createSequentialGroup()
-        			.addGap(13)
+        			.addGap(9)
         			.addComponent(chckbxAutoloadlibs)
         			.addGroup(gl_MPOPanel.createParallelGroup(Alignment.BASELINE)
         					.addGroup(gl_MPOPanel.createSequentialGroup()
@@ -502,6 +506,7 @@ public class AngryGhidraProvider extends ComponentProvider {
 	        					.addComponent(scroll, GroupLayout.PREFERRED_SIZE, 45, Short.MAX_VALUE))))
         			.addContainerGap())
         );
+       
         gl_MPOPanel.setHonorsVisibility(false);
         MPOPanel.setLayout(gl_MPOPanel);
 
@@ -573,7 +578,7 @@ public class AngryGhidraProvider extends ComponentProvider {
         TFstore_addr = new IntegerTextField();
         TFstore_addr.setHexMode();
         GridBagConstraints gbc_TFstore_addr = new GridBagConstraints();
-        gbc_TFstore_addr.anchor = GridBagConstraints.NORTH;
+        gbc_TFstore_addr.anchor = GridBagConstraints.CENTER;
         gbc_TFstore_addr.fill = GridBagConstraints.HORIZONTAL;
         gbc_TFstore_addr.insets = new Insets(0, 0, 0, 5);
         gbc_TFstore_addr.gridx = 1;
@@ -587,7 +592,7 @@ public class AngryGhidraProvider extends ComponentProvider {
         GridBagConstraints gbc_TFstore_val = new GridBagConstraints();
         gbc_TFstore_val.insets = new Insets(0, 0, 0, 5);
         gbc_TFstore_val.fill = GridBagConstraints.HORIZONTAL;
-        gbc_TFstore_val.anchor = GridBagConstraints.NORTH;
+        gbc_TFstore_val.anchor = GridBagConstraints.CENTER;
         gbc_TFstore_val.gridx = 3;
         gbc_TFstore_val.gridy = 1;
         gbc_TFstore_val.weightx = 1;
@@ -601,7 +606,7 @@ public class AngryGhidraProvider extends ComponentProvider {
         GridBagConstraints gbc_btnAddWM = new GridBagConstraints();
         gbc_btnAddWM.weighty = 0.1;
         gbc_btnAddWM.fill = GridBagConstraints.HORIZONTAL;
-        gbc_btnAddWM.anchor = GridBagConstraints.NORTH;
+        gbc_btnAddWM.anchor = GridBagConstraints.CENTER;
         gbc_btnAddWM.insets = new Insets(0, 0, 0, 5);
         gbc_btnAddWM.gridx = 0;
         gbc_btnAddWM.gridy = 1;
@@ -613,7 +618,7 @@ public class AngryGhidraProvider extends ComponentProvider {
                 TFaddr.setHexMode();
                 GridBagConstraints gbc_TFaddr = new GridBagConstraints();
                 gbc_TFaddr.fill = GridBagConstraints.HORIZONTAL;
-                gbc_TFaddr.anchor = GridBagConstraints.NORTH;
+                gbc_TFaddr.anchor = GridBagConstraints.CENTER;
                 gbc_TFaddr.gridx = 1;
                 gbc_TFaddr.insets = new Insets(0, 0, 0, 5);
                 gbc_TFaddr.gridy = GuiStoreCounter;
@@ -625,7 +630,7 @@ public class AngryGhidraProvider extends ComponentProvider {
                 TFval.setHexMode();
                 GridBagConstraints gbc_TFval = new GridBagConstraints();
                 gbc_TFval.fill = GridBagConstraints.HORIZONTAL;
-                gbc_TFval.anchor = GridBagConstraints.NORTH;
+                gbc_TFval.anchor = GridBagConstraints.CENTER;
                 gbc_TFval.insets = new Insets(0, 0, 0, 5);
                 gbc_TFval.gridx = 3;
                 gbc_TFval.gridy = GuiStoreCounter;
@@ -640,7 +645,7 @@ public class AngryGhidraProvider extends ComponentProvider {
                 btnDel.setIcon(deleteIcon);
                 GridBagConstraints gbc_btnDel = new GridBagConstraints();
                 gbc_btnDel.fill = GridBagConstraints.HORIZONTAL;
-                gbc_btnDel.anchor = GridBagConstraints.NORTH;
+                gbc_btnDel.anchor = GridBagConstraints.CENTER;
                 gbc_btnDel.insets = new Insets(0, 0, 0, 5);
                 gbc_btnDel.gridx = 0;
                 gbc_btnDel.gridy = GuiStoreCounter++;
@@ -697,15 +702,15 @@ public class AngryGhidraProvider extends ComponentProvider {
         			.addContainerGap()
         			.addComponent(lbMemory, GroupLayout.PREFERRED_SIZE, 13, GroupLayout.PREFERRED_SIZE)
         			.addPreferredGap(ComponentPlacement.RELATED)
-        			.addComponent(MemPanel, GroupLayout.DEFAULT_SIZE, 55, Short.MAX_VALUE)
+        			.addComponent(MemPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
         			.addGap(23)
         			.addComponent(lblWriteToMemory)
         			.addPreferredGap(ComponentPlacement.RELATED)
-        			.addComponent(WMPanel, GroupLayout.DEFAULT_SIZE, 55, Short.MAX_VALUE)
+        			.addComponent(WMPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
         			.addGap(18)
         			.addComponent(lbRegisters)
         			.addGap(9)
-        			.addComponent(RegPanel, GroupLayout.DEFAULT_SIZE, 57, Short.MAX_VALUE)
+        			.addComponent(RegPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
         			.addGap(54))
         );
         GridBagLayout gbl_RegPanel = new GridBagLayout();
@@ -755,7 +760,7 @@ public class AngryGhidraProvider extends ComponentProvider {
 
         JButton btnAddButton = new JButton("");
         GridBagConstraints gbc_btnAddButton = new GridBagConstraints();
-        gbc_btnAddButton.anchor = GridBagConstraints.NORTH;
+        gbc_btnAddButton.anchor = GridBagConstraints.CENTER;
         gbc_btnAddButton.fill = GridBagConstraints.HORIZONTAL;
         gbc_btnAddButton.insets = new Insets(0, 0, 0, 5);
         gbc_btnAddButton.gridx = 0;
@@ -767,10 +772,10 @@ public class AngryGhidraProvider extends ComponentProvider {
         btnAddButton.setIcon(addIcon);
 
         TFVal1 = new JTextField();
-        TFVal1.setBorder(Classic_border);
+       // TFVal1.setBorder(Classic_border);
         GridBagConstraints gbc_TFVal1 = new GridBagConstraints();
         gbc_TFVal1.insets = new Insets(0, 0, 0, 5);
-        gbc_TFVal1.anchor = GridBagConstraints.NORTH;
+        gbc_TFVal1.anchor = GridBagConstraints.CENTER;
         gbc_TFVal1.fill = GridBagConstraints.HORIZONTAL;
         gbc_TFVal1.gridx = 3;
         gbc_TFVal1.gridy = 1;
@@ -780,21 +785,21 @@ public class AngryGhidraProvider extends ComponentProvider {
 
         TFReg1 = new JTextField();
         GridBagConstraints gbc_TFReg1 = new GridBagConstraints();
-        gbc_TFReg1.anchor = GridBagConstraints.NORTH;
+        gbc_TFReg1.anchor = GridBagConstraints.CENTER;
         gbc_TFReg1.fill = GridBagConstraints.HORIZONTAL;
         gbc_TFReg1.insets = new Insets(0, 0, 0, 5);
         gbc_TFReg1.gridx = 1;
         gbc_TFReg1.gridy = 1;
         gbc_TFReg1.weighty = 0.1;
         RegPanel.add(TFReg1, gbc_TFReg1);
-        TFReg1.setBorder(Classic_border);
+       // TFReg1.setBorder(Classic_border);
 
         btnAddButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 JTextField TFReg = new JTextField();
                 GridBagConstraints gbc_TFReg = new GridBagConstraints();
                 gbc_TFReg.fill = GridBagConstraints.HORIZONTAL;
-                gbc_TFReg.anchor = GridBagConstraints.NORTH;
+                gbc_TFReg.anchor = GridBagConstraints.CENTER;
                 gbc_TFReg.gridx = 1;
                 gbc_TFReg.insets = new Insets(0, 0, 0, 5);
                 gbc_TFReg.gridy = GuiRegCounter;
@@ -803,10 +808,10 @@ public class AngryGhidraProvider extends ComponentProvider {
                 RegPanel.add(TFReg, gbc_TFReg);
 
                 JTextField TFVal = new JTextField();
-                TFVal.setBorder(Classic_border);
+             //   TFVal.setBorder(Classic_border);
                 GridBagConstraints gbc_TFVal = new GridBagConstraints();
                 gbc_TFVal.fill = GridBagConstraints.HORIZONTAL;
-                gbc_TFVal.anchor = GridBagConstraints.NORTH;
+                gbc_TFVal.anchor = GridBagConstraints.CENTER;
                 gbc_TFVal.insets = new Insets(0, 0, 0, 5);
                 gbc_TFVal.gridx = 3;
                 gbc_TFVal.gridy = GuiRegCounter;
@@ -822,7 +827,7 @@ public class AngryGhidraProvider extends ComponentProvider {
                 GridBagConstraints gbc_btnDel = new GridBagConstraints();
                 gbc_btnDel.insets = new Insets(0, 0, 0, 5);
                 gbc_btnDel.fill = GridBagConstraints.HORIZONTAL;
-                gbc_btnDel.anchor = GridBagConstraints.NORTH;
+                gbc_btnDel.anchor = GridBagConstraints.CENTER;
                 gbc_btnDel.gridx = 0;
                 gbc_btnDel.gridy = GuiRegCounter++;
                 gbc_btnDel.weighty = 0.1;
@@ -875,7 +880,7 @@ public class AngryGhidraProvider extends ComponentProvider {
 
         JButton btnAddMem = new JButton("");
         GridBagConstraints gbc_btnAddMem = new GridBagConstraints();
-        gbc_btnAddMem.anchor = GridBagConstraints.NORTH;
+        gbc_btnAddMem.anchor = GridBagConstraints.CENTER;
         gbc_btnAddMem.fill = GridBagConstraints.HORIZONTAL;
         gbc_btnAddMem.insets = new Insets(0, 0, 0, 5);
         gbc_btnAddMem.gridx = 0;
@@ -907,7 +912,7 @@ public class AngryGhidraProvider extends ComponentProvider {
         TFsymbmem_addr = new IntegerTextField();
         TFsymbmem_addr.setHexMode();
         GridBagConstraints gbc_TFsymbmem_addr = new GridBagConstraints();
-        gbc_TFsymbmem_addr.anchor = GridBagConstraints.NORTH;
+        gbc_TFsymbmem_addr.anchor = GridBagConstraints.CENTER;
         gbc_TFsymbmem_addr.fill = GridBagConstraints.HORIZONTAL;
         gbc_TFsymbmem_addr.insets = new Insets(0, 0, 0, 5);
         gbc_TFsymbmem_addr.gridx = 1;
@@ -920,7 +925,7 @@ public class AngryGhidraProvider extends ComponentProvider {
         GridBagConstraints gbc_TFsymbmem_len = new GridBagConstraints();
         gbc_TFsymbmem_len.insets = new Insets(0, 0, 0, 5);
         gbc_TFsymbmem_len.fill = GridBagConstraints.HORIZONTAL;
-        gbc_TFsymbmem_len.anchor = GridBagConstraints.NORTH;
+        gbc_TFsymbmem_len.anchor = GridBagConstraints.CENTER;
         gbc_TFsymbmem_len.gridx = 3;
         gbc_TFsymbmem_len.gridy = 1;
         gbc_TFsymbmem_len.weightx = 1;
@@ -933,7 +938,7 @@ public class AngryGhidraProvider extends ComponentProvider {
                 TFaddr.setHexMode();
                 GridBagConstraints gbc_TFaddr = new GridBagConstraints();
                 gbc_TFaddr.fill = GridBagConstraints.HORIZONTAL;
-                gbc_TFaddr.anchor = GridBagConstraints.NORTH;
+                gbc_TFaddr.anchor = GridBagConstraints.CENTER;
                 gbc_TFaddr.gridx = 1;
                 gbc_TFaddr.insets = new Insets(0, 0, 0, 5);
                 gbc_TFaddr.gridy = GuiMemCounter;
@@ -944,7 +949,7 @@ public class AngryGhidraProvider extends ComponentProvider {
                 IntegerTextField TFlen = new IntegerTextField();
                 GridBagConstraints gbc_TFlen = new GridBagConstraints();
                 gbc_TFlen.fill = GridBagConstraints.HORIZONTAL;
-                gbc_TFlen.anchor = GridBagConstraints.NORTH;
+                gbc_TFlen.anchor = GridBagConstraints.CENTER;
                 gbc_TFlen.insets = new Insets(0, 0, 0, 5);
                 gbc_TFlen.gridx = 3;
                 gbc_TFlen.gridy = GuiMemCounter;
@@ -959,7 +964,7 @@ public class AngryGhidraProvider extends ComponentProvider {
                 btnDel.setIcon(deleteIcon);
                 GridBagConstraints gbc_btnDel = new GridBagConstraints();
                 gbc_btnDel.fill = GridBagConstraints.HORIZONTAL;
-                gbc_btnDel.anchor = GridBagConstraints.NORTH;
+                gbc_btnDel.anchor = GridBagConstraints.CENTER;
                 gbc_btnDel.insets = new Insets(0, 0, 0, 5);
                 gbc_btnDel.gridx = 0;
                 gbc_btnDel.gridy = GuiMemCounter++;
@@ -997,10 +1002,10 @@ public class AngryGhidraProvider extends ComponentProvider {
         lbStatus.setFont(new Font("SansSerif", Font.PLAIN, 13));
 
         StatusLabel = new JLabel(main_str);
-        StatusLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        StatusLabel.setFont(new Font("SansSerif", Font.PLAIN, 13));
 
         StatusLabelFound = new JLabel("");
-        StatusLabelFound.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        StatusLabelFound.setFont(new Font("SansSerif", Font.PLAIN, 13));
 
         btnRun = new JButton("Run");
         btnRun.setIcon(Starticon);
@@ -1169,7 +1174,7 @@ public class AngryGhidraProvider extends ComponentProvider {
                             .addComponent(btnAddHook))
                         .addGroup(gl_HookPanel.createSequentialGroup()
                             .addGap(10)
-                            .addComponent(RegHookPanel, GroupLayout.DEFAULT_SIZE, 26, Short.MAX_VALUE)))
+                            .addComponent(RegHookPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
                     .addGap(34))
         );
         GridBagLayout gbl_RegHookPanel = new GridBagLayout();
@@ -1206,27 +1211,34 @@ public class AngryGhidraProvider extends ComponentProvider {
 
                 if (chckbxBlankState.isSelected()) {
                     if (!TFBlankState.getText().matches("0x[0-9A-Fa-f]+")) {
-                        TFBlankState.setBorder(new LineBorder(Color.red, 1));
-                        StatusLabel.setText("[-] Error: please, enter the correct hex value.");
+                    	 Border threePartBorder = new CompoundBorder(
+                    			 new LineBorder(Color.red),
+                                 new EmptyBorder(-1, -1, -1, -1));
+                       // TFBlankState.setBorder(BorderFactory.createBevelBorder(0));
+                    	StatusLabel.setForeground(Color.red);
+                    	
+                        StatusLabel.setText("[–] Error: enter the correct blank state address value in hex format!");
                         return;
                     }
-                    TFBlankState.setBorder(Classic_border);
+                  //  TFBlankState.setBorder(Classic_border);
                     String blank_state = TFBlankState.getText();
                     angr_options.put("blank_state", blank_state);
                 }
                 if (!TFFind.getText().matches("0x[0-9A-Fa-f]+")) {
-                    TFFind.setBorder(new LineBorder(Color.red, 1));
-                    StatusLabel.setText("[-] Error: please, enter the correct hex value without spaces.");
+                   // TFFind.setBorder(new LineBorder(Color.red, 1));
+                	StatusLabel.setForeground(Color.red);
+                    StatusLabel.setText("[–] Error: enter the correct destination address in hex format!");
                     return;
                 }
-                TFFind.setBorder(Classic_border);
+               // TFFind.setBorder(Classic_border);
                 String find_addr = TFFind.getText();
                 angr_options.put("find_address", find_addr);
 
                 if (chckbxAvoidAddresses.isSelected()) {
                     if (!textArea.getText().replaceAll("\\s+", "").matches("[0x0-9a-fA-F, /,]+")) {
-                        textArea.setBorder(new LineBorder(Color.red, 1));
-                        StatusLabel.setText("[-] Error: please, enter the correct hex values separated by comma.");
+                       // textArea.setBorder(new LineBorder(Color.red, 1));
+                    	StatusLabel.setForeground(Color.red);
+                        StatusLabel.setText("[–] Error: enter the correct avoid addresses in hex format separated by comma!");
                         return;
                     }
                     textArea.setBorder(textAreaDefaultBorder);
@@ -1327,6 +1339,7 @@ public class AngryGhidraProvider extends ComponentProvider {
                     angr_options.put("raw_binary_arch", arch);
                 }
 
+                StatusLabel.setForeground(Color.black);
                 File angrfile = new File(TmpDir + "angr_options.json");
                 if (angrfile.exists()) {
                     angrfile.delete();
@@ -1386,7 +1399,7 @@ public class AngryGhidraProvider extends ComponentProvider {
                     return;
                 }
                 if (solution != null && !solution.isEmpty()) {
-                    StatusLabelFound.setText("[+] Solution found:");
+                    StatusLabelFound.setText("[+] Solution's been found:");
                     scrollSolution.setVisible(true);
                     SolutionArea.setText(solution.trim());
                     AddressFactory addressFactory = thisProgram.getAddressFactory();
@@ -1400,7 +1413,7 @@ public class AngryGhidraProvider extends ComponentProvider {
                         }
                     }
                 } else {
-                    StatusLabelFound.setText("[-] Solution NOT found!");
+                    StatusLabelFound.setText("[–] No solution!");
                 }
             }
         };
@@ -1524,12 +1537,14 @@ public class AngryGhidraProvider extends ComponentProvider {
         StatusLabel.setText(main_str);
         StatusLabelFound.setText("");
         SolutionArea.setText("");
+        StatusLabel.setForeground(Color.black);
         scrollSolution.setVisible(false);
         chckbxAutoloadlibs.setSelected(false);
         clearTraceList(true);
 
         // Reset blank state address
         TFBlankState.setText("");
+      //  TFBlankState.setBorder(Classic_border);
         chckbxBlankState.setSelected(false);
         if (AngryGhidraPopupMenu.currentBlankAddr != null) {
             AngryGhidraPopupMenu.resetColor(AngryGhidraPopupMenu.currentBlankAddr);
@@ -1538,6 +1553,7 @@ public class AngryGhidraProvider extends ComponentProvider {
 
         // Reset find address
         TFFind.setText("");
+     //   TFFind.setBorder(Classic_border);
         if (AngryGhidraPopupMenu.currentFindAddr != null) {
             AngryGhidraPopupMenu.resetColor(AngryGhidraPopupMenu.currentFindAddr);
             AngryGhidraPopupMenu.currentFindAddr = null;
@@ -1545,6 +1561,7 @@ public class AngryGhidraProvider extends ComponentProvider {
 
         // Reset avoid addresses panel
         textArea.setText("");
+        textArea.setBorder(textAreaDefaultBorder);
         if (!AngryGhidraPopupMenu.currentAvoidAddresses.isEmpty()) {
             for (Address address : AngryGhidraPopupMenu.currentAvoidAddresses){
                 AngryGhidraPopupMenu.resetColor(address);

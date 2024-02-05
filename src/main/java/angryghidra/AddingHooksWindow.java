@@ -81,7 +81,7 @@ public class AddingHooksWindow {
         TFAddress = new IntegerTextField();
         TFAddress.setHexMode();
         GridBagConstraints gbc_TFAddress = new GridBagConstraints();
-        gbc_TFAddress.anchor = GridBagConstraints.NORTH;
+        gbc_TFAddress.anchor = GridBagConstraints.CENTER;
         gbc_TFAddress.fill = GridBagConstraints.HORIZONTAL;
         gbc_TFAddress.gridx = 0;
         gbc_TFAddress.gridy = 1;
@@ -116,7 +116,7 @@ public class AddingHooksWindow {
                         lbHook.setFont(new Font("SansSerif", Font.PLAIN, 12));
                         GridBagConstraints gbc_lbHook = new GridBagConstraints();
                         gbc_lbHook.fill = GridBagConstraints.HORIZONTAL;
-                        gbc_lbHook.anchor = GridBagConstraints.NORTH;
+                        gbc_lbHook.anchor = GridBagConstraints.CENTER;
                         gbc_lbHook.gridwidth = 3;
                         gbc_lbHook.gridx = 1;
                         gbc_lbHook.insets = new Insets(0, 0, 0, 5);
@@ -133,7 +133,7 @@ public class AddingHooksWindow {
                         GridBagConstraints gbc_btnDel = new GridBagConstraints();
                         gbc_btnDel.insets = new Insets(0, 0, 0, 5);
                         gbc_btnDel.fill = GridBagConstraints.HORIZONTAL;
-                        gbc_btnDel.anchor = GridBagConstraints.NORTH;
+                        gbc_btnDel.anchor = GridBagConstraints.CENTER;
                         gbc_btnDel.gridx = 0;
                         gbc_btnDel.gridy =  AngryGhidraProvider.GuiHookCounter++;
                         gbc_btnDel.weighty = 0.1;
@@ -190,7 +190,7 @@ public class AddingHooksWindow {
 
         JButton btnAddButton = new JButton("");
         GridBagConstraints gbc_btnAddButton = new GridBagConstraints();
-        gbc_btnAddButton.anchor = GridBagConstraints.NORTH;
+        gbc_btnAddButton.anchor = GridBagConstraints.CENTER;
         gbc_btnAddButton.fill = GridBagConstraints.HORIZONTAL;
         gbc_btnAddButton.insets = new Insets(0, 0, 0, 5);
         gbc_btnAddButton.gridx = 0;
@@ -204,7 +204,7 @@ public class AddingHooksWindow {
         TFHookReg1 = new JTextField();
         TFHookReg1.setBorder(TFAddress.getComponent().getBorder());
         GridBagConstraints gbc_TFReg1 = new GridBagConstraints();
-        gbc_TFReg1.anchor = GridBagConstraints.NORTH;
+        gbc_TFReg1.anchor = GridBagConstraints.CENTER;
         gbc_TFReg1.fill = GridBagConstraints.HORIZONTAL;
         gbc_TFReg1.insets = new Insets(0, 0, 0, 5);
         gbc_TFReg1.gridx = 1;
@@ -217,7 +217,7 @@ public class AddingHooksWindow {
         TFHookVal1.setBorder(TFAddress.getComponent().getBorder());
         GridBagConstraints gbc_TFVal1 = new GridBagConstraints();
         gbc_TFVal1.insets = new Insets(0, 0, 0, 5);
-        gbc_TFVal1.anchor = GridBagConstraints.NORTH;
+        gbc_TFVal1.anchor = GridBagConstraints.CENTER;
         gbc_TFVal1.fill = GridBagConstraints.HORIZONTAL;
         gbc_TFVal1.gridx = 3;
         gbc_TFVal1.gridy = 1;
@@ -231,7 +231,7 @@ public class AddingHooksWindow {
                 TFReg.setBorder(TFAddress.getComponent().getBorder());
                 GridBagConstraints gbc_TFReg = new GridBagConstraints();
                 gbc_TFReg.fill = GridBagConstraints.HORIZONTAL;
-                gbc_TFReg.anchor = GridBagConstraints.NORTH;
+                gbc_TFReg.anchor = GridBagConstraints.CENTER;
                 gbc_TFReg.gridx = 1;
                 gbc_TFReg.insets = new Insets(0, 0, 0, 5);
                 gbc_TFReg.gridy = GuiHookRegCounter;
@@ -243,7 +243,7 @@ public class AddingHooksWindow {
                 TFVal.setBorder(TFAddress.getComponent().getBorder());
                 GridBagConstraints gbc_TFVal = new GridBagConstraints();
                 gbc_TFVal.fill = GridBagConstraints.HORIZONTAL;
-                gbc_TFVal.anchor = GridBagConstraints.NORTH;
+                gbc_TFVal.anchor = GridBagConstraints.CENTER;
                 gbc_TFVal.insets = new Insets(0, 0, 0, 5);
                 gbc_TFVal.gridx = 3;
                 gbc_TFVal.gridy = GuiHookRegCounter;
@@ -259,7 +259,7 @@ public class AddingHooksWindow {
                 GridBagConstraints gbc_btnDel = new GridBagConstraints();
                 gbc_btnDel.insets = new Insets(0, 0, 0, 5);
                 gbc_btnDel.fill = GridBagConstraints.HORIZONTAL;
-                gbc_btnDel.anchor = GridBagConstraints.NORTH;
+                gbc_btnDel.anchor = GridBagConstraints.CENTER;
                 gbc_btnDel.gridx = 0;
                 gbc_btnDel.gridy = GuiHookRegCounter++;
                 gbc_btnDel.weighty = 0.1;
@@ -322,7 +322,7 @@ public class AddingHooksWindow {
         gbl_AddrPanel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
         AddrPanel.setLayout(gbl_AddrPanel);
 
-        JLabel lbAddress = new JLabel("Hook at address:");
+        JLabel lbAddress = new JLabel("Hook address:");
         lbAddress.setFont(new Font("SansSerif", Font.PLAIN, 12));
         GridBagConstraints gbc_lbAddress = new GridBagConstraints();
         gbc_lbAddress.anchor = GridBagConstraints.SOUTH;
