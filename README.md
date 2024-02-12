@@ -6,15 +6,15 @@ The plugin allows you to use [angr](https://github.com/angr/angr) for binary ana
 
 Solving [CTF challenge from SecurityFest 2016 "fairlight"](https://github.com/angr/angr-doc/blob/master/examples/securityfest_fairlight/fairlight) with AngryGhidra plugin:
 
-![AngryGhidra Plugin](./images/Plugin.gif)
+![AngryGhidra Plugin](./images/PluginDemo.gif)
 
 # Screenshots
 
-![AngryGhidraView](./images/AngryGhidraView.png)
+![AngryGhidraView](./images/PluginView.png)
 
-Apply patched bytes to write them to the memory of angr project:
+Apply patched bytes to write them into the memory of angr project:
 
-![ApplyPatchedBytes](./images/ApplyPatchedBytes.png)
+![ApplyPatchedBytes](./images/ApplyBytes.png)
 
 # Hotkeys
 

@@ -211,6 +211,7 @@ public class HookClass {
 
         hookRegTF = new JTextField();
         hookRegTF.setBorder(border);
+        hookRegTF.setColumns(5);
         GridBagConstraints gbc_TFReg1 = new GridBagConstraints();
         gbc_TFReg1.anchor = GridBagConstraints.CENTER;
         gbc_TFReg1.fill = GridBagConstraints.HORIZONTAL;
@@ -223,6 +224,7 @@ public class HookClass {
 
         hookValTF = new JTextField();
         hookValTF.setBorder(border);
+        hookValTF.setColumns(5);
         GridBagConstraints gbc_TFVal1 = new GridBagConstraints();
         gbc_TFVal1.insets = new Insets(0, 0, 0, 5);
         gbc_TFVal1.anchor = GridBagConstraints.CENTER;
@@ -237,6 +239,7 @@ public class HookClass {
             public void actionPerformed(ActionEvent e) {
                 JTextField regTF = new JTextField();
                 regTF.setBorder(border);
+                regTF.setColumns(5);
                 GridBagConstraints gbc_TFReg = new GridBagConstraints();
                 gbc_TFReg.fill = GridBagConstraints.HORIZONTAL;
                 gbc_TFReg.anchor = GridBagConstraints.CENTER;
@@ -248,6 +251,7 @@ public class HookClass {
                 regPanel.add(regTF, gbc_TFReg);
 
                 JTextField valTF = new JTextField();
+                valTF.setColumns(5);
                 valTF.setBorder(border);
                 GridBagConstraints gbc_TFVal = new GridBagConstraints();
                 gbc_TFVal.fill = GridBagConstraints.HORIZONTAL;

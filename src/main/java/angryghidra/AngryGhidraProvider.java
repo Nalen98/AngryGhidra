@@ -419,12 +419,16 @@ public class AngryGhidraProvider extends ComponentProvider {
                 List<Address> userAvoidAddresses = new ArrayList<Address>(addressStorage.getAvoidAddresses());
                 if (!userAvoidAddresses.isEmpty()) {
                     try {
-                        List <String> avoidAddresses = Arrays.asList(avoidTextArea.getText().split("\\s*,\\s*"));
+                        List <String> avoidAddresses = Arrays.asList(avoidTextArea.getText().split(","));
+                        // Sanitize the list
+                        String separator = System.getProperty("line.separator");
+                        for (int i = 0; i < avoidAddresses.size(); i++) {
+                            avoidAddresses.set(i, avoidAddresses.get(i).replace(separator, ""));
+                        }
                         for (int i = 0; i < userAvoidAddresses.size(); i++) {
                             Address address = userAvoidAddresses.get(i);
-                            String addedFromGui = "0x" + address.toString();
-                            String addedFromArea = avoidAddresses.get(i);
-                            if (!addedFromGui.equals(addedFromArea)) {
+                            String strAddress = "0x" + address.toString();
+                            if (!avoidAddresses.contains(strAddress)) {
                                 mColorService.resetColor(address);
                                 addressStorage.removeAvoidAddress(address);
                             }
@@ -451,6 +455,24 @@ public class AngryGhidraProvider extends ComponentProvider {
             }
         );
 
+        // Unfortunately, it was found that GUI gaps look different on different operating systems
+        int blankStateTFGap = 10;
+        int findAddressGap = 13;
+        int blankStateCBGap = 11;
+        int scrollAvoidAddrsAreaGap = 11;
+        int avoidAreaGap = 11;
+        int bufferGap = 8;
+        int horizontalFindAddressGap = 22;
+        if (isWindows) {
+            blankStateTFGap = 11;
+            findAddressGap = 10;
+            blankStateCBGap = 6;
+            scrollAvoidAddrsAreaGap = 13;
+            avoidAreaGap = 8;
+            bufferGap = 0;
+            horizontalFindAddressGap = 21;
+        }
+
         GroupLayout gl_mainOptionsPanel = new GroupLayout(mainOptionsPanel);
         gl_mainOptionsPanel.setHorizontalGroup(
             gl_mainOptionsPanel.createParallelGroup(Alignment.TRAILING)
@@ -470,7 +492,7 @@ public class AngryGhidraProvider extends ComponentProvider {
                                             .addComponent(chckbxAvoidAddresses, GroupLayout.PREFERRED_SIZE, 134, GroupLayout.PREFERRED_SIZE)
                                             .addPreferredGap(ComponentPlacement.RELATED, 18, Short.MAX_VALUE)))
                                     .addGroup(gl_mainOptionsPanel.createSequentialGroup()
-                                        .addGap(22)
+                                        .addGap(horizontalFindAddressGap)
                                         .addComponent(lbFind, GroupLayout.PREFERRED_SIZE, 102, GroupLayout.PREFERRED_SIZE)
                                         .addPreferredGap(ComponentPlacement.RELATED)))
                                 .addGroup(gl_mainOptionsPanel.createParallelGroup(Alignment.LEADING)
@@ -479,21 +501,6 @@ public class AngryGhidraProvider extends ComponentProvider {
                                     .addComponent(scrollAvoidAddrsArea, GroupLayout.DEFAULT_SIZE, 54, Short.MAX_VALUE))
                                 .addGap(15))))
         );
-        // Unfortunately, it was found that GUI gaps look diffrent on different operating systems
-        int blankStateTFGap = 10;
-        int findAddressGap = 13;
-        int blankStateCBGap = 11;
-        int scrollAvoidAddrsAreaGap = 11;
-        int avoidAreaGap = 11;
-        int bufferGap = 8;
-        if (isWindows) {
-            blankStateTFGap = 12;
-            findAddressGap = 11;
-            blankStateCBGap = 7;
-            scrollAvoidAddrsAreaGap = 13;
-            avoidAreaGap = 8;
-            bufferGap = 0;
-        }
 
         gl_mainOptionsPanel.setVerticalGroup(
             gl_mainOptionsPanel.createParallelGroup(Alignment.LEADING)
@@ -786,6 +793,7 @@ public class AngryGhidraProvider extends ComponentProvider {
         btnAddButton.setIcon(addIcon);
 
         valueTF = new JTextField();
+        valueTF.setColumns(5);
         GridBagConstraints gbc_valueTF = new GridBagConstraints();
         gbc_valueTF.insets = new Insets(0, 0, 0, 5);
         gbc_valueTF.anchor = GridBagConstraints.CENTER;
@@ -797,6 +805,7 @@ public class AngryGhidraProvider extends ComponentProvider {
         regPanel.add(valueTF, gbc_valueTF);
 
         registerTF = new JTextField();
+        registerTF.setColumns(5);
         GridBagConstraints gbc_registerTF = new GridBagConstraints();
         gbc_registerTF.anchor = GridBagConstraints.CENTER;
         gbc_registerTF.fill = GridBagConstraints.HORIZONTAL;
@@ -809,6 +818,7 @@ public class AngryGhidraProvider extends ComponentProvider {
         btnAddButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 JTextField regTF = new JTextField();
+                regTF.setColumns(5);
                 GridBagConstraints gbc_regTF = new GridBagConstraints();
                 gbc_regTF.fill = GridBagConstraints.HORIZONTAL;
                 gbc_regTF.anchor = GridBagConstraints.CENTER;
@@ -820,6 +830,7 @@ public class AngryGhidraProvider extends ComponentProvider {
                 regPanel.add(regTF, gbc_regTF);
 
                 JTextField valTF = new JTextField();
+                valTF.setColumns(5);
                 GridBagConstraints gbc_valTF = new GridBagConstraints();
                 gbc_valTF.fill = GridBagConstraints.HORIZONTAL;
                 gbc_valTF.anchor = GridBagConstraints.CENTER;
