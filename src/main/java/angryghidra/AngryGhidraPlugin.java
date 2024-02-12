@@ -1,18 +1,3 @@
-/* ###
- * IP: GHIDRA
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *      http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package angryghidra;
 
 import ghidra.app.ExamplesPluginPackage;
@@ -23,11 +8,6 @@ import ghidra.framework.plugintool.PluginTool;
 import ghidra.framework.plugintool.util.PluginStatus;
 import ghidra.program.model.listing.Program;
 
-
-/**
- * TODO: Provide class-level documentation that describes what this plugin does.
- */
-//@formatter:off
 @PluginInfo(
     status = PluginStatus.STABLE,
     packageName = ExamplesPluginPackage.NAME,
@@ -35,33 +15,41 @@ import ghidra.program.model.listing.Program;
     shortDescription = "Use angr in Ghidra",
     description = "One-click symbolic execution using angr in Ghidra"
 )
-//@formatter:on
-public class AngryGhidraPlugin extends ProgramPlugin {
 
-    AngryGhidraProvider provider;
-    Program program;
-    AngryGhidraPopupMenu popup;
+public class AngryGhidraPlugin extends ProgramPlugin {
+    private PluginTool mTool;
+    private AngryGhidraProvider provider;
+    private AngryGhidraPopupMenu popup;
+    private UserAddressStorage addressStorage;
+    private LocalColorizingService colorService;
+    private Program mProgram;
 
     public AngryGhidraPlugin(PluginTool tool) {
-        super(tool);       
-        String pluginName = getName();
-        provider = new AngryGhidraProvider(this, pluginName, this.getCurrentProgram());
-        createActions();
+        super(tool);
+        mTool = tool;
+        addressStorage = new UserAddressStorage();
+        provider = new AngryGhidraProvider(this, getName(), mProgram);
+        popup = new AngryGhidraPopupMenu(this);
     }
 
     @Override
-    public void init() {
-        super.init();
+    protected void programActivated(Program program) {
+        mProgram = program;
+        provider.setProgram(program);
+        provideColorService();
     }
 
-    @Override
-    protected void programActivated(Program p) {
-        program = p;
-        provider.setProgram(p);
-        popup.setProgram(p);
+    public void provideColorService() {
+        colorService = new LocalColorizingService(mTool, mProgram);
+        popup.setColorService(colorService);
+        provider.setColorService(colorService);
     }
 
-    private void createActions() {
-        popup = new AngryGhidraPopupMenu(this, program);
+    public AngryGhidraProvider getProvider() {
+        return provider;
+    }
+
+    public UserAddressStorage getAddressStorage() {
+        return addressStorage;
     }
 }
