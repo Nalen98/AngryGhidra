@@ -1,6 +1,6 @@
 # AngryGhidra
 
-<p align="center"><img src="./images/angryGhidraIcon.png" width="360" height="250">
+<p align="center"><img src="./images/Icon.png" width="360" height="250">
 
 The plugin allows you to use [angr](https://github.com/angr/angr) for binary analysis and symbolic execution in Ghidra interface.
 
@@ -10,7 +10,7 @@ Solving [CTF challenge from SecurityFest 2016 "fairlight"](https://github.com/an
 
 # Screenshots
 
-![AngryGhidraView](./images/PluginView.png)
+![AngryGhidraView](./images/View.png)
 
 Apply patched bytes to write them into the memory of angr project:
 
