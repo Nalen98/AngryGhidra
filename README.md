@@ -6,7 +6,7 @@ The plugin allows you to use [angr](https://github.com/angr/angr) for binary ana
 
 Solving [CTF challenge from SecurityFest 2016 "fairlight"](https://github.com/angr/angr-doc/blob/master/examples/securityfest_fairlight/fairlight) with AngryGhidra plugin:
 
-![AngryGhidra Plugin](./images/AngryGhidraPlugin.gif)
+![AngryGhidra Plugin](./images/Plugin.gif)
 
 # Screenshots
 
