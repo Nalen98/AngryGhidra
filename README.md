@@ -11,14 +11,14 @@ Solving [CTF challenge from SecurityFest 2016 "fairlight"](https://github.com/an
 # Hotkeys
 
 ##### Set:
-`Z` – address to **find** (destination address that you want angr should run to)
-`X` – **start** address
-`J` – **avoid** address (multiple choice)
+`Z` – **destination** address  
+`X` – **start** address  
+`J` – **avoid** address (multiple choice)  
 
 ##### Reset:
-`K` – address to **find**
-`T` – **start** address
-`P` – **avoid** address
+`K` – **destination** address  
+`T` – **start** address  
+`P` – **avoid** address  
 
 ##### Apply bytes:
 `U` – apply patched bytes to angr project memory
