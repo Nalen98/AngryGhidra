@@ -8,6 +8,7 @@ REGISTERS = []
 SYMVECTORS = []
 
 def hook_function(state):
+    global SYMVECTORS
     for object in EXPLORE_OPT["hooks"]:
         for frame in object.items():
             if frame[0] == hex(state.solver.eval(state.regs.ip)):
@@ -25,6 +26,14 @@ def hook_function(state):
                             break
 
 def main(file):
+    global EXPLORE_OPT
+    global REGISTERS
+    global SYMVECTORS
+    find = None
+    avoid = None
+    blank_state = None
+    vectors = None
+
     with open(file, encoding='utf-8') as json_file:
         EXPLORE_OPT = json.load(json_file)
 
@@ -59,7 +68,7 @@ def main(file):
 
     if len(argv) > 1:
         state = p.factory.entry_state(args=argv)
-    elif "blank_state" in locals():
+    elif blank_state != None:
         state = p.factory.blank_state(addr=blank_state)
     else:
         state = p.factory.entry_state()
@@ -110,7 +119,7 @@ def main(file):
                 p.hook(int(hook_address, 16), hook_function, length=hook_length)
 
     simgr = p.factory.simulation_manager(state)
-    if "avoid_address" in locals():
+    if avoid != None:
         simgr.use_technique(angr.exploration_techniques.Explorer(find=find, avoid=avoid))
     else:
         simgr.use_technique(angr.exploration_techniques.Explorer(find=find))
@@ -119,11 +128,18 @@ def main(file):
     if simgr.found:
         found_path = simgr.found[0]
         win_sequence = ""
+        finishedTracing = False
         for win_block in found_path.history.bbl_addrs.hardcopy:
             win_block = p.factory.block(win_block)
             addresses = win_block.instruction_addrs
             for address in addresses:
                 win_sequence += 't:' + hex(address) + '\n'
+                if address == find:
+                    # Prevent sending the rest of the block addresses that aren't desired
+                    finishedTracing = True
+                    break
+            if finishedTracing:
+                break
         win_sequence = win_sequence[:-1]
         print(win_sequence)
 
@@ -131,7 +147,7 @@ def main(file):
             for i in range(1, len(argv)):
                 print("argv[{id}] = {solution}".format(id=i, solution=found_path.solver.eval(argv[i], cast_to=bytes)))
 
-        if "vectors" in locals() and len(vectors) != 0:
+        if vectors != None and len(vectors) != 0:
             for address, length in vectors.items():
                 print("{addr} = {value}".format(addr=hex(address),
                                                 value=found_path.solver.eval(found_path.memory.load(address, length),
