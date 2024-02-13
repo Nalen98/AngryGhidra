@@ -57,7 +57,7 @@ public class AngryGhidraProvider extends ComponentProvider {
     private String tmpDir;
     private Program thisProgram;
     private LocalColorizingService mColorService;
-    private HookClass hookClass;
+    private HookHandler hookHandler;
     private AngrProcessing angrProcessing;
     private UserAddressStorage addressStorage;
     private JPanel mainPanel;
@@ -1157,11 +1157,11 @@ public class AngryGhidraProvider extends ComponentProvider {
         btnAddHook.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 if (getHookWindowState()) {
-                    hookClass = new HookClass(AngryGhidraProvider.this);
-                    hookClass.main();
+                    hookHandler = new HookHandler(AngryGhidraProvider.this);
+                    hookHandler.main();
                     setHookWindowState(false);
                 } else {
-                    hookClass.toFront();
+                    hookHandler.toFront();
                 }
             }
         });
@@ -1315,14 +1315,15 @@ public class AngryGhidraProvider extends ComponentProvider {
                 angr_options.put("binary_file", binary_path);
                 angr_options.put("base_address", "0x" + Long.toHexString(thisProgram.getMinAddress().getOffset()));
                 if (thisProgram.getExecutableFormat().contains("Raw Binary")) {
-                    String arch = thisProgram.getLanguage().toString().substring(0, thisProgram.getLanguage().toString().indexOf("/"));
+                    String language = thisProgram.getLanguage().toString();
+                    String arch = language.substring(0, language.indexOf("/"));
                     angr_options.put("raw_binary_arch", arch);
                 }
                 statusLabel.setForeground(Color.black);
                 mainPanel.revalidate();
-                File angrfile = new File(tmpDir + "angr_options.json");
-                if (angrfile.exists()) {
-                    angrfile.delete();
+                File angrOptionsFile = new File(tmpDir + "angr_options.json");
+                if (angrOptionsFile.exists()) {
+                    angrOptionsFile.delete();
                 }
                 try {
                     FileWriter file = new FileWriter(tmpDir + "angr_options.json");
@@ -1330,7 +1331,7 @@ public class AngryGhidraProvider extends ComponentProvider {
                     file.flush();
                     file.close();
                 } catch (Exception ex) {}
-                angrProcessing.preparetoRun(angrfile);
+                angrProcessing.preparetoRun(angrOptionsFile);
             }
         });
     }
@@ -1446,8 +1447,8 @@ public class AngryGhidraProvider extends ComponentProvider {
         regPanel.revalidate();
 
         // Reset all hooks
-        if (hookClass != null) {
-            hookClass.requestClearHooks();
+        if (hookHandler != null) {
+            hookHandler.requestClearHooks();
         }
         hooks.clear();
         for (JButton button : delHookBtns) {

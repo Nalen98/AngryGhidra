@@ -26,7 +26,7 @@ import javax.swing.border.Border;
 import docking.widgets.textfield.IntegerTextField;
 import resources.ResourceManager;
 
-public class HookClass {
+public class HookHandler {
     private AngryGhidraProvider mProvider;
     private int hookNextId;
     private int hookRegNextId;
@@ -39,7 +39,7 @@ public class HookClass {
     private ArrayList <JButton> delButtons;
     private IntegerTextField lengthTF;
 
-    public HookClass(AngryGhidraProvider provider) {
+    public HookHandler(AngryGhidraProvider provider) {
         mProvider = provider;
     }
 
