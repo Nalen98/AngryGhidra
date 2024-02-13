@@ -1,32 +1,42 @@
 # AngryGhidra
 
-<p align="center"><img src="./images/angryGhidraIcon.png" width="360" height="250">
+<p align="center"><img src="./images/Icon.png" width="360" height="250">
 
-The plugin allows you to use [angr](https://github.com/angr/angr) for binary analysis and symbolic execution from Ghidra interface.
+The plugin allows you to use [angr](https://github.com/angr/angr) for binary analysis and symbolic execution in Ghidra interface.
 
 Solving [CTF challenge from SecurityFest 2016 "fairlight"](https://github.com/angr/angr-doc/blob/master/examples/securityfest_fairlight/fairlight) with AngryGhidra plugin:
 
-![AngryGhidra Plugin](./images/AngryGhidraPlugin.gif)
+![AngryGhidra Plugin](./images/AngryPluginDemo.gif)
+
+# Hotkeys
+
+##### Set:
+`Z` – **destination** address  
+`X` – **start** address  
+`J` – **avoid** address (multiple choice)  
+
+##### Reset:
+`K` – **destination** address  
+`T` – **start** address  
+`P` – **avoid** address  
+
+##### Apply bytes:
+`U` – apply patched bytes to angr project memory
 
 # Screenshots
 
-![AngryGhidraView](./images/AngryGhidraView.png)
+Let's keygen:
 
-Apply patched bytes to write them to the memory of angr project:
+![AngryGhidraView](./images/View.png)
+
+Apply patched bytes to write them into the memory of angr project:
 
 ![ApplyPatchedBytes](./images/ApplyPatchedBytes.png)
 
 # Installation
-  
-- `pip3 install angr` at first
-- Make sure that python3 directory added to the `PATH` (required, `python3` only)
-- Download Release version of extension and install it in Ghidra `File → Install Extensions...` 
-- Use gradle to build extension: `GHIDRA_INSTALL_DIR=${GHIDRA_HOME} gradle` and use Ghidra to install it: `File → Install Extensions...` 
 
-
-
-
-
-
-
-
+1) `pip3 install angr`
+2) Make sure `python3` directory is added to the `PATH` (required, `Python 3` only)
+3) Download the release version of the plugin and install it in Ghidra `File → Install Extensions...`
+4) Use Gradle to build the plugin: `GHIDRA_INSTALL_DIR=${GHIDRA_HOME} gradle` and use Ghidra to install it: `File → Install Extensions...`
+5) Check the box in the "New Plugins Found" window to apply AngryGhidra plugin to your project

@@ -1,12 +1,10 @@
 package angryghidra;
 
-
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -14,16 +12,12 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
-import java.io.InputStreamReader;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
@@ -40,9 +34,6 @@ import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
-import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import org.json.JSONArray;
@@ -50,221 +41,244 @@ import org.json.JSONObject;
 import docking.ComponentProvider;
 import docking.widgets.textfield.IntegerTextField;
 import ghidra.program.model.address.Address;
-import ghidra.program.model.address.AddressFactory;
 import ghidra.program.model.listing.Program;
 import resources.ResourceManager;
 
 public class AngryGhidraProvider extends ComponentProvider {
-    private JPanel panel;
-    private JPanel CSOPanel;
-    private JPanel SAPanel;
-    static JTextField TFBlankState;
-    static JTextField TFFind;
-    static JCheckBox chckbxBlankState;
-    static JCheckBox chckbxAvoidAddresses;
-    static JTextArea textArea;
-    private IntegerTextField TFFirstArg;
-    private IntegerTextField TFsymbmem_addr;
-    private IntegerTextField TFsymbmem_len;
-    static IntegerTextField TFstore_addr;
-    static IntegerTextField TFstore_val;
-    private JTextField TFVal1;
-    private int GuiRegCounter;
-    private int GuiArgCounter;
-    private int GuiMemCounter;
-    static int GuiStoreCounter;
-    static int GuiHookCounter;
-    private ArrayList <JButton> delRegsBtns;
-    private ArrayList <IntegerTextField> TFsOfArgs;   
-    private HashMap <IntegerTextField, IntegerTextField> vectors;    
-    public static HashMap <IntegerTextField, IntegerTextField> memStore;
-    private HashMap <JTextField, JTextField> presetRegs;
-    private ArrayList <JButton> delMemBtns;
-    static ArrayList <JButton> delStoreBtns;
-    private ArrayList <JButton> delBtnArgs;
-    static ArrayList <JButton> delHookBtns;
-    static ArrayList <JLabel> lbHooks;
-    private List <String> traceList;
-    private JLabel StatusLabel;
-    private JLabel StatusLabelFound;
-    private JLabel lbStatus;
-    private JButton btnReset;
-    private JButton btnRun;
-    private JButton btnStop;
-    private JSONObject angr_options;
+    public final String htmlString = "<html>Registers<br/>Hint: to create and store symbolic vector enter \"sv{length}\", for example \"sv16\"</html>";
+    public final String configuringString = "[+] Configuring options";
+    private boolean isHookWindowClosed;
+    private boolean isTerminated;
+    private boolean isWindows;
+    private int guiRegNextId;
+    private int guiArgNextId;
+    private int guiMemNextId;
+    private int guiStoreNextId;
+    private String tmpDir;
     private Program thisProgram;
-    private String solution;
-    private String insntrace;
-    private JTextArea SolutionArea;
-    private JScrollPane scrollSolution;
-    private JCheckBox chckbxAutoloadlibs;
+    private LocalColorizingService mColorService;
+    private HookHandler hookHandler;
+    private AngrProcessing angrProcessing;
+    private UserAddressStorage addressStorage;
+    private JPanel mainPanel;
+    private JPanel customOptionsPanel;
+    private JPanel argumentsPanel;
+    private JPanel mainOptionsPanel;
+    private JPanel statusPanel;
+    private JPanel hookLablesPanel;
+    private JPanel writeMemoryPanel;
+    private JPanel argSetterPanel;
+    private JPanel vectorsPanel;
+    private JPanel regPanel;
+    private JScrollPane scrollSolutionTextArea;
+    private JScrollPane scrollAvoidAddrsArea;
+    private JTextField blankStateTF;
+    private JTextField dstAddressTF;
+    private JTextField valueTF;
+    private JTextField registerTF;
+    private IntegerTextField firstArgTF;
+    private IntegerTextField vectorAddressTF;
+    private IntegerTextField vectorLenTF;
+    private IntegerTextField memStoreAddrTF;
+    private IntegerTextField memStoreValueTF;
+    private JCheckBox chckbxBlankState;
+    private JCheckBox chckbxAvoidAddresses;
+    private JCheckBox chckbxAutoLoadLibs;
     private JCheckBox chckbxArg;
-    private Boolean isTerminated;
-    private JPanel EndPanel;
-    private String TmpDir;
-    private JScrollPane scroll;
-    private JPanel MemPanel;
-    private JPanel RegPanel;
-    private JTextField TFReg1;
-    static JPanel WMPanel;
-    private JPanel ArgPanel;
-    private JButton btnAddWM;
+    private JTextArea avoidTextArea;
+    private JTextArea solutionTextArea;
+    private JLabel statusLabel;
+    private JLabel statusLabelFound;
+    private JLabel lbStatus;
     private JLabel lbStoreAddr;
     private JLabel lbStoreVal;
     private JLabel lblWriteToMemory;
-    public static JPanel RegHookPanel;
-    public static Map <String[], String[][]> hooks;
-    public static ImageIcon deleteIcon;
-    public static ImageIcon addIcon;
-    public String main_str;
-    public JLabel lbLenArg;
-    public JButton btnAddArg;
-    public JPanel MPOPanel;
+    private JLabel lbArgLen;
+    private JButton btnReset;
+    private JButton btnRun;
+    private JButton btnStop;
+    private JButton btnAddWM;
+    private JButton btnAddArg;
+    private HashMap <IntegerTextField, IntegerTextField> vectors;
+    private HashMap <IntegerTextField, IntegerTextField> memStore;
+    private HashMap <JTextField, JTextField> presetRegs;
+    private HashMap <String[], String[][]> hooks;
+    private ArrayList <IntegerTextField> argsTF;
+    private ArrayList <JButton> delRegsBtns;
+    private ArrayList <JButton> delMemBtns;
+    private ArrayList <JButton> delStoreBtns;
+    private ArrayList <JButton> delBtnArgs;
+    private ArrayList <JButton> delHookBtns;
+    private ArrayList <JLabel> lbHooks;
+    private ImageIcon deleteIcon;
+    private ImageIcon addIcon;
 
     public AngryGhidraProvider(AngryGhidraPlugin plugin, String owner, Program program) {
         super(plugin.getTool(), owner, owner);
+        addressStorage = plugin.getAddressStorage();
         setIcon(ResourceManager.loadImage("images/ico.png"));
-        setProgram(program);
+        if (program != null){
+            setProgram(program);
+        }
+        initFields();
         buildPanel();
     }
 
-    private void buildPanel() {
-        panel = new JPanel();
-        panel.setMinimumSize(new Dimension(210, 510));
-        setVisible(true);
+    public void setColorService(LocalColorizingService colorService) {
+        mColorService = colorService;
+        angrProcessing = new AngrProcessing(addressStorage, mColorService, this, thisProgram.getAddressFactory());
+    }
 
-        addIcon = new ImageIcon(getClass().getResource("/images/add.png"));
-        Image image = addIcon.getImage();
-        Image newimg = image.getScaledInstance(23, 23,  java.awt.Image.SCALE_SMOOTH); 
-        addIcon = new ImageIcon(newimg);        
-        
-        deleteIcon = new ImageIcon(getClass().getResource("/images/delete.png"));
-        image = deleteIcon.getImage();
-        newimg = image.getScaledInstance(23, 23,  java.awt.Image.SCALE_SMOOTH); 
-        deleteIcon = new ImageIcon(newimg);
-        
+    private void initFields() {
+        ImageIcon addIconNonScaled = new ImageIcon(getClass().getResource("/images/add.png"));
+        ImageIcon deleteIconNonScaled = new ImageIcon(getClass().getResource("/images/delete.png"));
+        addIcon = new ImageIcon(addIconNonScaled.getImage().getScaledInstance(21, 21,  java.awt.Image.SCALE_SMOOTH));
+        deleteIcon = new ImageIcon(deleteIconNonScaled.getImage().getScaledInstance(21, 21,  java.awt.Image.SCALE_SMOOTH));
+
+        setHookWindowState(true);
+        setIsTerminated(false);
+        guiArgNextId = 2;
+        guiMemNextId = 2;
+        guiRegNextId = 2;
+        guiStoreNextId = 2;
         delRegsBtns = new ArrayList <JButton>();
         delBtnArgs = new ArrayList <JButton>();
         delMemBtns = new ArrayList <JButton>();
         delStoreBtns = new ArrayList <JButton>();
-        delHookBtns = new ArrayList <JButton>();       
-        TFsOfArgs = new ArrayList <IntegerTextField>();
-        traceList = new ArrayList <String>();
+        delHookBtns = new ArrayList <JButton>();
+        argsTF = new ArrayList <IntegerTextField>();
         presetRegs = new HashMap<>();
         vectors = new HashMap<>();
         memStore = new HashMap<>();
         hooks = new HashMap <String[], String[][]>();
         lbHooks = new ArrayList <JLabel>();
-        isTerminated = false;
-        GuiArgCounter = 2;
-        GuiMemCounter = 2;
-        GuiRegCounter = 2;
-        GuiStoreCounter = 2;
-        GuiHookCounter = 2;        
-        main_str = "[+] Configuring options";
+        isWindows = System.getProperty("os.name").contains("Windows");
+        tmpDir = System.getProperty("java.io.tmpdir");
+        if (!isWindows) {
+            tmpDir += "/";
+        }
+    }
 
-        TmpDir = System.getProperty("java.io.tmpdir");
-        if (System.getProperty("os.name").contains("Windows") == false) {
-            TmpDir += "/";
-        } 
-    
-        MPOPanel = new JPanel();
-        MPOPanel.setForeground(new Color(46, 139, 87));
+    private void buildPanel() {
+        mainPanel = new JPanel();
+        mainPanel.setMinimumSize(new Dimension(210, 510));
+        setVisible(true);
+
+        // Some preparations
+        ImageIcon startIcon = new ImageIcon(getClass().getResource("/images/flag.png"));
+        ImageIcon stopIcon = new ImageIcon(getClass().getResource("/images/stop.png"));
+        ImageIcon resetIcon = new ImageIcon(getClass().getResource("/images/reset.png"));
+        resetIcon = new ImageIcon(resetIcon.getImage().getScaledInstance(18, 18,  java.awt.Image.SCALE_SMOOTH));
+        Font sansSerif12 = new Font("SansSerif", Font.PLAIN, 12);
+        Font sansSerif13 = new Font("SansSerif", Font.PLAIN, 13);
+
         TitledBorder borderMPO = BorderFactory.createTitledBorder("Main project options");
-        borderMPO.setTitleFont(new Font("SansSerif", Font.PLAIN, 12));
-        MPOPanel.setBorder(borderMPO);
+        borderMPO.setTitleFont(sansSerif12);
 
-        CSOPanel = new JPanel();
         TitledBorder borderCSO = BorderFactory.createTitledBorder("Custom symbolic options");
-        borderCSO.setTitleFont(new Font("SansSerif", Font.PLAIN, 12));
-        CSOPanel.setBorder(borderCSO);
+        borderCSO.setTitleFont(sansSerif12);
 
-        SAPanel = new JPanel();
-        SAPanel.setForeground(new Color(46, 139, 87));
         TitledBorder borderSA = BorderFactory.createTitledBorder("Program arguments");
-        borderSA.setTitleFont(new Font("SansSerif", Font.PLAIN, 12));
-        SAPanel.setBorder(borderSA);
+        borderSA.setTitleFont(sansSerif12);
+
+        argSetterPanel = new JPanel();
+        vectorsPanel = new JPanel();
+        regPanel = new JPanel();
+        writeMemoryPanel = new JPanel();
+        hookLablesPanel = new JPanel();
+        statusPanel = new JPanel();
+        statusPanel.setBorder(null);
+        argSetterPanel.setBorder(null);
+        writeMemoryPanel.setBorder(null);
+
+        mainOptionsPanel = new JPanel();
+        mainOptionsPanel.setForeground(new Color(46, 139, 87));
+        mainOptionsPanel.setBorder(borderMPO);
+
+        customOptionsPanel = new JPanel();
+        customOptionsPanel.setBorder(borderCSO);
 
         chckbxArg = new JCheckBox("Arguments");
-        chckbxArg.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        chckbxArg.setFont(sansSerif12);
 
-        ArgPanel = new JPanel();
-        ArgPanel.setBorder(null);
+        argumentsPanel = new JPanel();
+        argumentsPanel.setForeground(new Color(46, 139, 87));
+        argumentsPanel.setBorder(borderSA);
 
-        GroupLayout gl_SAPanel = new GroupLayout(SAPanel);
-        gl_SAPanel.setHorizontalGroup(
-            gl_SAPanel.createParallelGroup(Alignment.TRAILING)
-            .addGroup(gl_SAPanel.createSequentialGroup()
+        GroupLayout gl_argumentsPanel = new GroupLayout(argumentsPanel);
+        gl_argumentsPanel.setHorizontalGroup(
+            gl_argumentsPanel.createParallelGroup(Alignment.TRAILING)
+            .addGroup(gl_argumentsPanel.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(chckbxArg, GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE)
                 .addGap(31)
-                .addComponent(ArgPanel, GroupLayout.DEFAULT_SIZE, 116, Short.MAX_VALUE)
+                .addComponent(argSetterPanel, GroupLayout.DEFAULT_SIZE, 116, Short.MAX_VALUE)
                 .addContainerGap())
         );
-        gl_SAPanel.setVerticalGroup(
-            gl_SAPanel.createParallelGroup(Alignment.LEADING)
-            .addGroup(gl_SAPanel.createSequentialGroup()
-                .addGroup(gl_SAPanel.createParallelGroup(Alignment.LEADING)
-                    .addGroup(gl_SAPanel.createSequentialGroup()
+        gl_argumentsPanel.setVerticalGroup(
+            gl_argumentsPanel.createParallelGroup(Alignment.LEADING)
+            .addGroup(gl_argumentsPanel.createSequentialGroup()
+                .addGroup(gl_argumentsPanel.createParallelGroup(Alignment.LEADING)
+                    .addGroup(gl_argumentsPanel.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(chckbxArg))
-                    .addComponent(ArgPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(argSetterPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
                 .addGap(20))
         );
+        argumentsPanel.setLayout(gl_argumentsPanel);
 
-        GridBagLayout gbl_ArgPanel = new GridBagLayout();
-        gbl_ArgPanel.columnWidths = new int[] {
+        GridBagLayout gbl_argSetterPanel = new GridBagLayout();
+        gbl_argSetterPanel.columnWidths = new int[] {
             0,
             0,
             0,
             0,
             0
         };
-        gbl_ArgPanel.rowHeights = new int[] {
+        gbl_argSetterPanel.rowHeights = new int[] {
             0,
             0
         };
-        gbl_ArgPanel.columnWeights = new double[] {
+        gbl_argSetterPanel.columnWeights = new double[] {
             0.0,
             0.0,
             0.0,
             0.0,
             Double.MIN_VALUE
         };
-        gbl_ArgPanel.rowWeights = new double[] {
+        gbl_argSetterPanel.rowWeights = new double[] {
             0.0,
             0.0
         };
-        ArgPanel.setLayout(gbl_ArgPanel);
+        argSetterPanel.setLayout(gbl_argSetterPanel);
 
         btnAddArg = new JButton("");
         GridBagConstraints gbc_btnAddArg = new GridBagConstraints();
-        gbc_btnAddArg.anchor = GridBagConstraints.NORTH;
+        gbc_btnAddArg.anchor = GridBagConstraints.CENTER;
         gbc_btnAddArg.fill = GridBagConstraints.HORIZONTAL;
         gbc_btnAddArg.insets = new Insets(0, 0, 0, 5);
         gbc_btnAddArg.gridx = 0;
         gbc_btnAddArg.gridy = 1;
         gbc_btnAddArg.weighty = 0.1;
-        ArgPanel.add(btnAddArg, gbc_btnAddArg);
+        argSetterPanel.add(btnAddArg, gbc_btnAddArg);
         btnAddArg.setContentAreaFilled(false);
         btnAddArg.setIcon(addIcon);
         btnAddArg.setBorder(null);
         btnAddArg.setVisible(false);
 
-        lbLenArg = new JLabel("Length");
-        GridBagConstraints gbc_lbLenArg = new GridBagConstraints();
-        gbc_lbLenArg.insets = new Insets(0, 0, 0, 5);
-        gbc_lbLenArg.anchor = GridBagConstraints.NORTH;
-        gbc_lbLenArg.gridwidth = 3;
-        gbc_lbLenArg.gridx = 1;
-        gbc_lbLenArg.gridy = 0;
-        gbc_lbLenArg.weightx = 1;
-        ArgPanel.add(lbLenArg, gbc_lbLenArg);
-        lbLenArg.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        lbLenArg.setVisible(false);
+        lbArgLen = new JLabel("Length");
+        GridBagConstraints gbc_lbArgLen = new GridBagConstraints();
+        gbc_lbArgLen.insets = new Insets(0, 0, 0, 5);
+        gbc_lbArgLen.anchor = GridBagConstraints.CENTER;
+        gbc_lbArgLen.gridwidth = 3;
+        gbc_lbArgLen.gridx = 1;
+        gbc_lbArgLen.gridy = 0;
+        gbc_lbArgLen.weightx = 1;
+        argSetterPanel.add(lbArgLen, gbc_lbArgLen);
+        lbArgLen.setFont(sansSerif12);
+        lbArgLen.setVisible(false);
 
-        TFFirstArg = new IntegerTextField();
-        Border Classic_border = TFFirstArg.getComponent().getBorder();
+        firstArgTF = new IntegerTextField();
         GridBagConstraints gbc_TFArglen = new GridBagConstraints();
         gbc_TFArglen.insets = new Insets(0, 0, 0, 5);
         gbc_TFArglen.fill = GridBagConstraints.HORIZONTAL;
@@ -274,30 +288,30 @@ public class AngryGhidraProvider extends ComponentProvider {
         gbc_TFArglen.gridy = 1;
         gbc_TFArglen.weightx = 1;
         gbc_TFArglen.weighty = 0.1;
-        ArgPanel.add(TFFirstArg.getComponent(), gbc_TFArglen);
-        TFFirstArg.getComponent().setVisible(false);
+        argSetterPanel.add(firstArgTF.getComponent(), gbc_TFArglen);
+        firstArgTF.getComponent().setVisible(false);
         chckbxArg.addItemListener(
             new ItemListener() {
                 public void itemStateChanged(ItemEvent e) {
                     if (chckbxArg.isSelected()) {
-                        TFFirstArg.getComponent().setVisible(true);
-                        lbLenArg.setVisible(true);
+                        firstArgTF.getComponent().setVisible(true);
+                        lbArgLen.setVisible(true);
                         btnAddArg.setVisible(true);
                         for (JButton btnDel: delBtnArgs) {
                             btnDel.setVisible(true);
                         }
-                        for (IntegerTextField TFArg: TFsOfArgs) {
-                            TFArg.getComponent().setVisible(true);
+                        for (IntegerTextField argTF: argsTF) {
+                            argTF.getComponent().setVisible(true);
                         }
                     } else {
-                        TFFirstArg.getComponent().setVisible(false);
-                        lbLenArg.setVisible(false);
+                        firstArgTF.getComponent().setVisible(false);
+                        lbArgLen.setVisible(false);
                         btnAddArg.setVisible(false);
                         for (JButton btnDel: delBtnArgs) {
                             btnDel.setVisible(false);
                         }
-                        for (IntegerTextField TFArg: TFsOfArgs) {
-                            TFArg.getComponent().setVisible(false);
+                        for (IntegerTextField argTF: argsTF) {
+                            argTF.getComponent().setVisible(false);
                         }
                     }
                 }
@@ -306,18 +320,18 @@ public class AngryGhidraProvider extends ComponentProvider {
 
         btnAddArg.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                IntegerTextField TFArg = new IntegerTextField();
+                IntegerTextField argTF = new IntegerTextField();
                 GridBagConstraints gbc_TFArg = new GridBagConstraints();
                 gbc_TFArg.fill = GridBagConstraints.HORIZONTAL;
-                gbc_TFArg.anchor = GridBagConstraints.NORTH;
+                gbc_TFArg.anchor = GridBagConstraints.CENTER;
                 gbc_TFArg.gridwidth = 3;
                 gbc_TFArg.gridx = 1;
                 gbc_TFArg.insets = new Insets(0, 0, 0, 5);
-                gbc_TFArg.gridy = GuiArgCounter;
+                gbc_TFArg.gridy = guiArgNextId;
                 gbc_TFArg.weightx = 1;
                 gbc_TFArg.weighty = 0.1;
-                ArgPanel.add(TFArg.getComponent(), gbc_TFArg);
-                TFsOfArgs.add(TFArg);
+                argSetterPanel.add(argTF.getComponent(), gbc_TFArg);
+                argsTF.add(argTF);
 
                 JButton btnDel = new JButton("");
                 btnDel.setBorder(null);
@@ -326,187 +340,211 @@ public class AngryGhidraProvider extends ComponentProvider {
                 GridBagConstraints gbc_btnDel = new GridBagConstraints();
                 gbc_btnDel.insets = new Insets(0, 0, 0, 5);
                 gbc_btnDel.fill = GridBagConstraints.HORIZONTAL;
-                gbc_btnDel.anchor = GridBagConstraints.NORTH;
+                gbc_btnDel.anchor = GridBagConstraints.CENTER;
                 gbc_btnDel.gridx = 0;
-                gbc_btnDel.gridy = GuiArgCounter++;
+                gbc_btnDel.gridy = guiArgNextId++;
                 gbc_btnDel.weighty = 0.1;
-                ArgPanel.add(btnDel, gbc_btnDel);
+                argSetterPanel.add(btnDel, gbc_btnDel);
                 delBtnArgs.add(btnDel);
                 btnDel.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        GuiArgCounter--;
-                        ArgPanel.remove(TFArg.getComponent());
-                        ArgPanel.remove(btnDel);
+                    public void actionPerformed(ActionEvent actionEvent) {
+                        guiArgNextId--;
+                        argSetterPanel.remove(argTF.getComponent());
+                        argSetterPanel.remove(btnDel);
                         delBtnArgs.remove(btnDel);
-                        TFsOfArgs.remove(TFArg);
-                        ArgPanel.repaint();
-                        ArgPanel.revalidate();
+                        argsTF.remove(argTF);
+                        argSetterPanel.repaint();
+                        argSetterPanel.revalidate();
                     }
                 });
-                ArgPanel.repaint();
-                ArgPanel.revalidate();
+                argSetterPanel.repaint();
+                argSetterPanel.revalidate();
             }
         });
-        SAPanel.setLayout(gl_SAPanel);
-
-        chckbxAutoloadlibs = new JCheckBox("Auto load libs");
-        chckbxAutoloadlibs.setFont(new Font("SansSerif", Font.PLAIN, 12));
-
-        TFBlankState = new JTextField();
-        TFBlankState.setBorder(Classic_border);
-        TFBlankState.setVisible(false);
-        TFBlankState.addKeyListener(new KeyAdapter() {
+        chckbxAutoLoadLibs = new JCheckBox("Auto load libs");
+        chckbxAutoLoadLibs.setFont(sansSerif12);
+        blankStateTF = new JTextField();
+        blankStateTF.setVisible(false);
+        blankStateTF.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent e) {
-                if (AngryGhidraPopupMenu.currentBlankAddr != null) {
-                    AngryGhidraPopupMenu.resetColor(AngryGhidraPopupMenu.currentBlankAddr);
-                    AngryGhidraPopupMenu.currentBlankAddr = null;
+                Address blankStateAddress = addressStorage.getBlankStateAddress();
+                if (blankStateAddress != null) {
+                    mColorService.resetColor(blankStateAddress);
+                    addressStorage.setBlankStateAddress(null);
                 }
             }
         });
-
-        chckbxBlankState = new JCheckBox("Blank State");
-        chckbxBlankState.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        chckbxBlankState = new JCheckBox("Blank state");
+        chckbxBlankState.setFont(sansSerif12);
         chckbxBlankState.addItemListener(
             new ItemListener() {
                 public void itemStateChanged(ItemEvent e) {
                     if (chckbxBlankState.isSelected()) {
-                        TFBlankState.setVisible(true);
+                        blankStateTF.setVisible(true);
                     } else {
-                        TFBlankState.setVisible(false);
+                        blankStateTF.setVisible(false);
                     }
-                    MPOPanel.revalidate();
+                    mainOptionsPanel.revalidate();
                 }
             }
         );
 
         JLabel lbFind = new JLabel("Find address");
         lbFind.setForeground(new Color(60, 179, 113));
-        lbFind.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        lbFind.setFont(sansSerif12);
 
-        TFFind = new JTextField();
-        TFFind.setMinimumSize(new java.awt.Dimension(100, 20));
-        TFFind.setBorder(Classic_border);
-        Font Classic_font = TFFind.getFont();
-        TFFind.addKeyListener(new KeyAdapter() {
+        dstAddressTF = new JTextField();
+        dstAddressTF.setMinimumSize(new Dimension(100, 20));
+        dstAddressTF.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent e) {
-                if (AngryGhidraPopupMenu.currentFindAddr != null) {
-                    AngryGhidraPopupMenu.resetColor(AngryGhidraPopupMenu.currentFindAddr);
-                    AngryGhidraPopupMenu.currentFindAddr = null;
+                Address dstAddress = addressStorage.getDestinationAddress();
+                if (dstAddress != null) {
+                    mColorService.resetColor(dstAddress);
+                    addressStorage.setDestinationAddress(null);
                 }
             }
         });
 
-        chckbxAvoidAddresses = new JCheckBox("Avoid addresses");
+        chckbxAvoidAddresses = new JCheckBox("Аvoid addresses");
         chckbxAvoidAddresses.setForeground(new Color(255, 0, 0));
         chckbxAvoidAddresses.setToolTipText("");
-        chckbxAvoidAddresses.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        chckbxAvoidAddresses.setFont(sansSerif12);
 
-        textArea = new JTextArea();
-        Border textAreaDefaultBorder = textArea.getBorder();
-        textArea.setMinimumSize(new Dimension(40, 40));
-        textArea.setToolTipText("Enter the hex values separated by comma.");
-        textArea.setFont(Classic_font);
-        textArea.addKeyListener(new KeyAdapter() {
+        avoidTextArea = new JTextArea();
+        avoidTextArea.setMinimumSize(new Dimension(40, 40));
+        avoidTextArea.setToolTipText("Enter the hex values separated by comma.");
+        avoidTextArea.setFont(dstAddressTF.getFont());
+        avoidTextArea.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent e) {
-                if (AngryGhidraPopupMenu.currentAvoidAddresses.isEmpty() == false) {
+                List<Address> userAvoidAddresses = new ArrayList<Address>(addressStorage.getAvoidAddresses());
+                if (!userAvoidAddresses.isEmpty()) {
                     try {
-                        List <String> avoidAddresses = Arrays.asList(textArea.getText().split("\\s*,\\s*"));
-                        for (int i = 0; i <AngryGhidraPopupMenu.currentAvoidAddresses.size(); i++) {
-                            String AddrfromGui = "0x" + AngryGhidraPopupMenu.currentAvoidAddresses.get(i).toString();
-                            String AddrfromArea = avoidAddresses.get(i);
-                            if (AddrfromGui.equals(AddrfromArea) == false) {
-                                AngryGhidraPopupMenu.resetColor(AngryGhidraPopupMenu.currentAvoidAddresses.get(i));
-                                AngryGhidraPopupMenu.currentAvoidAddresses.remove(i);
+                        List <String> avoidAddresses = Arrays.asList(avoidTextArea.getText().split(","));
+                        // Sanitize the list
+                        String separator = System.getProperty("line.separator");
+                        for (int i = 0; i < avoidAddresses.size(); i++) {
+                            avoidAddresses.set(i, avoidAddresses.get(i).replace(separator, ""));
+                        }
+                        for (int i = 0; i < userAvoidAddresses.size(); i++) {
+                            Address address = userAvoidAddresses.get(i);
+                            String strAddress = "0x" + address.toString();
+                            if (!avoidAddresses.contains(strAddress)) {
+                                mColorService.resetColor(address);
+                                addressStorage.removeAvoidAddress(address);
                             }
                         }
-                    } catch (Exception ex) {};
+                    } catch (Exception ex) {}
                 }
             }
         });
 
-        scroll = new JScrollPane(textArea);
-        scroll.setMinimumSize(new Dimension(50, 50));
-        scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-        scroll.setVisible(false);
+        scrollAvoidAddrsArea = new JScrollPane(avoidTextArea);
+        scrollAvoidAddrsArea.setMinimumSize(new Dimension(50, 50));
+        scrollAvoidAddrsArea.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollAvoidAddrsArea.setVisible(false);
         chckbxAvoidAddresses.addItemListener(
             new ItemListener() {
                 public void itemStateChanged(ItemEvent e) {
                     if (chckbxAvoidAddresses.isSelected()) {
-                        scroll.setVisible(true);
+                        scrollAvoidAddrsArea.setVisible(true);
                     } else {
-                        scroll.setVisible(false);
+                        scrollAvoidAddrsArea.setVisible(false);
                     }
-                    MPOPanel.revalidate();
+                    mainOptionsPanel.revalidate();
                 }
             }
         );
 
-        GroupLayout gl_MPOPanel = new GroupLayout(MPOPanel);
-        gl_MPOPanel.setHorizontalGroup(
-            gl_MPOPanel.createParallelGroup(Alignment.TRAILING)
-                .addGroup(gl_MPOPanel.createSequentialGroup()
-                    .addGap(11)
-                    .addGroup(gl_MPOPanel.createParallelGroup(Alignment.LEADING)
-                        .addGroup(gl_MPOPanel.createSequentialGroup()
-                            .addComponent(chckbxAutoloadlibs, GroupLayout.PREFERRED_SIZE, 148, GroupLayout.PREFERRED_SIZE)
-                            .addContainerGap(73, Short.MAX_VALUE))
-                        .addGroup(gl_MPOPanel.createSequentialGroup()
-                            .addGroup(gl_MPOPanel.createParallelGroup(Alignment.LEADING, false)
-                                .addGroup(gl_MPOPanel.createParallelGroup(Alignment.LEADING, false)
-                                    .addGroup(gl_MPOPanel.createSequentialGroup()
-                                        .addComponent(chckbxBlankState, GroupLayout.PREFERRED_SIZE, 134, GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(ComponentPlacement.RELATED, 18, Short.MAX_VALUE))
-                                    .addGroup(gl_MPOPanel.createSequentialGroup()
-                                        .addComponent(chckbxAvoidAddresses, GroupLayout.PREFERRED_SIZE, 144, GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(ComponentPlacement.UNRELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                                .addGroup(gl_MPOPanel.createSequentialGroup()
-                                    .addGap(21)
-                                    .addComponent(lbFind, GroupLayout.PREFERRED_SIZE, 102, GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(ComponentPlacement.RELATED)))
-                            .addGroup(gl_MPOPanel.createParallelGroup(Alignment.LEADING)
-                                .addComponent(TFBlankState, GroupLayout.DEFAULT_SIZE, 54, Short.MAX_VALUE)
-                                .addComponent(TFFind, GroupLayout.DEFAULT_SIZE, 54, Short.MAX_VALUE)
-                                .addComponent(scroll, GroupLayout.DEFAULT_SIZE, 54, Short.MAX_VALUE))
-                            .addGap(15))))
+        // Unfortunately, it was found that GUI gaps look different on different operating systems
+        int blankStateTFGap = 10;
+        int findAddressGap = 13;
+        int blankStateCBGap = 11;
+        int scrollAvoidAddrsAreaGap = 11;
+        int avoidAreaGap = 11;
+        int bufferGap = 8;
+        int horizontalFindAddressGap = 22;
+        if (isWindows) {
+            blankStateTFGap = 11;
+            findAddressGap = 10;
+            blankStateCBGap = 6;
+            scrollAvoidAddrsAreaGap = 13;
+            avoidAreaGap = 8;
+            bufferGap = 0;
+            horizontalFindAddressGap = 21;
+        }
+
+        GroupLayout gl_mainOptionsPanel = new GroupLayout(mainOptionsPanel);
+        gl_mainOptionsPanel.setHorizontalGroup(
+            gl_mainOptionsPanel.createParallelGroup(Alignment.TRAILING)
+                .addGroup(gl_mainOptionsPanel.createSequentialGroup()
+                        .addGap(11)
+                        .addGroup(gl_mainOptionsPanel.createParallelGroup(Alignment.LEADING)
+                            .addGroup(gl_mainOptionsPanel.createSequentialGroup()
+                                .addComponent(chckbxAutoLoadLibs, GroupLayout.PREFERRED_SIZE, 134, GroupLayout.PREFERRED_SIZE)
+                                .addContainerGap(73, Short.MAX_VALUE))
+                            .addGroup(gl_mainOptionsPanel.createSequentialGroup()
+                                .addGroup(gl_mainOptionsPanel.createParallelGroup(Alignment.LEADING)
+                                    .addGroup(gl_mainOptionsPanel.createParallelGroup(Alignment.LEADING)
+                                        .addGroup(gl_mainOptionsPanel.createSequentialGroup()
+                                            .addComponent(chckbxBlankState, GroupLayout.PREFERRED_SIZE, 134, GroupLayout.PREFERRED_SIZE)
+                                            .addPreferredGap(ComponentPlacement.RELATED, 18, Short.MAX_VALUE))
+                                        .addGroup(gl_mainOptionsPanel.createSequentialGroup()
+                                            .addComponent(chckbxAvoidAddresses, GroupLayout.PREFERRED_SIZE, 134, GroupLayout.PREFERRED_SIZE)
+                                            .addPreferredGap(ComponentPlacement.RELATED, 18, Short.MAX_VALUE)))
+                                    .addGroup(gl_mainOptionsPanel.createSequentialGroup()
+                                        .addGap(horizontalFindAddressGap)
+                                        .addComponent(lbFind, GroupLayout.PREFERRED_SIZE, 102, GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(ComponentPlacement.RELATED)))
+                                .addGroup(gl_mainOptionsPanel.createParallelGroup(Alignment.LEADING)
+                                    .addComponent(blankStateTF, GroupLayout.DEFAULT_SIZE, 54, Short.MAX_VALUE)
+                                    .addComponent(dstAddressTF, GroupLayout.DEFAULT_SIZE, 54, Short.MAX_VALUE)
+                                    .addComponent(scrollAvoidAddrsArea, GroupLayout.DEFAULT_SIZE, 54, Short.MAX_VALUE))
+                                .addGap(15))))
         );
-        gl_MPOPanel.setVerticalGroup(
-            gl_MPOPanel.createParallelGroup(Alignment.LEADING)
-                .addGroup(gl_MPOPanel.createSequentialGroup()
+
+        gl_mainOptionsPanel.setVerticalGroup(
+            gl_mainOptionsPanel.createParallelGroup(Alignment.LEADING)
+                .addGroup(gl_mainOptionsPanel.createSequentialGroup()
                     .addGap(6)
-                    .addComponent(chckbxAutoloadlibs, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE)
-                    .addGap(6)
-                    .addGroup(gl_MPOPanel.createParallelGroup(Alignment.BASELINE)
-                        .addGap(14)
-                        .addComponent(chckbxBlankState)
-                        .addComponent(TFBlankState, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                        .addGap(10)
-                    .addGroup(gl_MPOPanel.createParallelGroup(Alignment.BASELINE)
-                        .addComponent(TFFind, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                        .addComponent(lbFind, GroupLayout.PREFERRED_SIZE, 13, GroupLayout.PREFERRED_SIZE))
-                    .addPreferredGap(ComponentPlacement.UNRELATED)
-                    .addGroup(gl_MPOPanel.createParallelGroup(Alignment.BASELINE)
-                        .addComponent(scroll, GroupLayout.DEFAULT_SIZE, 50, Short.MAX_VALUE)
-                        .addComponent(chckbxAvoidAddresses, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE))
+                    .addComponent(chckbxAutoLoadLibs)
+                    .addGap(bufferGap)
+                    .addGroup(gl_mainOptionsPanel.createParallelGroup(Alignment.BASELINE)
+                            .addGroup(gl_mainOptionsPanel.createSequentialGroup()
+                                    .addGap(blankStateCBGap)
+                                    .addComponent(chckbxBlankState))
+                            .addGroup(gl_mainOptionsPanel.createSequentialGroup()
+                                    .addGap(blankStateTFGap)
+                                    .addComponent(blankStateTF, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(gl_mainOptionsPanel.createSequentialGroup()
+                        .addGroup(gl_mainOptionsPanel.createParallelGroup(Alignment.BASELINE)
+                            .addGroup(gl_mainOptionsPanel.createSequentialGroup()
+                                    .addGap(findAddressGap)
+                                    .addComponent(lbFind))
+                            .addGroup(gl_mainOptionsPanel.createSequentialGroup()
+                                    .addGap(10)
+                                    .addComponent(dstAddressTF, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(gl_mainOptionsPanel.createParallelGroup(Alignment.BASELINE)
+                            .addGroup(gl_mainOptionsPanel.createSequentialGroup()
+                                .addGap(avoidAreaGap)
+                                .addComponent(chckbxAvoidAddresses))
+                            .addGroup(gl_mainOptionsPanel.createSequentialGroup()
+                                .addGap(scrollAvoidAddrsAreaGap)
+                                .addComponent(scrollAvoidAddrsArea, GroupLayout.PREFERRED_SIZE, 45, Short.MAX_VALUE))))
                     .addContainerGap())
         );
-        MPOPanel.setLayout(gl_MPOPanel);
-
-        MemPanel = new JPanel();
+        gl_mainOptionsPanel.setAutoCreateContainerGaps(false);
+        gl_mainOptionsPanel.setAutoCreateGaps(false);
+        gl_mainOptionsPanel.setHonorsVisibility(false);
+        mainOptionsPanel.setLayout(gl_mainOptionsPanel);
 
         JLabel lbMemory = new JLabel("Store symbolic vector:");
         lbMemory.setHorizontalAlignment(SwingConstants.CENTER);
-        lbMemory.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        lbMemory.setFont(sansSerif12);
+        JLabel lbRegisters = new JLabel(htmlString);
+        lbRegisters.setFont(sansSerif12);
 
-        JLabel lbRegisters = new JLabel("<html>Registers<br/>Hint: to create and store symbolic vector enter \"sv{length}\", for example \"sv16\"</html>");
-        lbRegisters.setHorizontalAlignment(SwingConstants.CENTER);
-        lbRegisters.setFont(new Font("SansSerif", Font.PLAIN, 12));
-
-        RegPanel = new JPanel();
-
-        WMPanel = new JPanel();
-        WMPanel.setBorder(null);
-        GridBagLayout gbl_WMPanel = new GridBagLayout();
-        gbl_WMPanel.columnWidths = new int[] {
+        GridBagLayout gbl_writeMemoryPanel = new GridBagLayout();
+        gbl_writeMemoryPanel.columnWidths = new int[] {
             0,
             0,
             0,
@@ -514,12 +552,12 @@ public class AngryGhidraProvider extends ComponentProvider {
             0,
             0
         };
-        gbl_WMPanel.rowHeights = new int[] {
+        gbl_writeMemoryPanel.rowHeights = new int[] {
             0,
             0,
             0
         };
-        gbl_WMPanel.columnWeights = new double[] {
+        gbl_writeMemoryPanel.columnWeights = new double[] {
             0.0,
             0.0,
             0.0,
@@ -527,58 +565,58 @@ public class AngryGhidraProvider extends ComponentProvider {
             0.0,
             Double.MIN_VALUE
         };
-        gbl_WMPanel.rowWeights = new double[] {
+        gbl_writeMemoryPanel.rowWeights = new double[] {
             0.0,
             0.0,
             Double.MIN_VALUE
         };
-        WMPanel.setLayout(gbl_WMPanel);
+        writeMemoryPanel.setLayout(gbl_writeMemoryPanel);
 
         lblWriteToMemory = new JLabel("Write to memory:");
         lblWriteToMemory.setHorizontalAlignment(SwingConstants.CENTER);
-        lblWriteToMemory.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        lblWriteToMemory.setFont(sansSerif12);
 
         lbStoreAddr = new JLabel("Address");
-        lbStoreAddr.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        lbStoreAddr.setFont(sansSerif12);
         GridBagConstraints gbc_lbStoreAddr = new GridBagConstraints();
         gbc_lbStoreAddr.weightx = 1.0;
         gbc_lbStoreAddr.insets = new Insets(0, 0, 0, 5);
         gbc_lbStoreAddr.gridx = 1;
         gbc_lbStoreAddr.gridy = 0;
-        WMPanel.add(lbStoreAddr, gbc_lbStoreAddr);
+        writeMemoryPanel.add(lbStoreAddr, gbc_lbStoreAddr);
 
         lbStoreVal = new JLabel("Value");
-        lbStoreVal.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        lbStoreVal.setFont(sansSerif12);
         GridBagConstraints gbc_lbStoreVal = new GridBagConstraints();
         gbc_lbStoreVal.weightx = 1.0;
         gbc_lbStoreVal.insets = new Insets(0, 0, 0, 5);
         gbc_lbStoreVal.gridx = 3;
         gbc_lbStoreVal.gridy = 0;
-        WMPanel.add(lbStoreVal, gbc_lbStoreVal);
+        writeMemoryPanel.add(lbStoreVal, gbc_lbStoreVal);
 
-        TFstore_addr = new IntegerTextField();
-        TFstore_addr.setHexMode();
-        GridBagConstraints gbc_TFstore_addr = new GridBagConstraints();
-        gbc_TFstore_addr.anchor = GridBagConstraints.NORTH;
-        gbc_TFstore_addr.fill = GridBagConstraints.HORIZONTAL;
-        gbc_TFstore_addr.insets = new Insets(0, 0, 0, 5);
-        gbc_TFstore_addr.gridx = 1;
-        gbc_TFstore_addr.gridy = 1;
-        gbc_TFstore_addr.weightx = 1;
-        gbc_TFstore_addr.weighty = 0.1;
-        WMPanel.add(TFstore_addr.getComponent(), gbc_TFstore_addr);
+        memStoreAddrTF = new IntegerTextField();
+        memStoreAddrTF.setHexMode();
+        GridBagConstraints gbc_memStoreAddrTF = new GridBagConstraints();
+        gbc_memStoreAddrTF.anchor = GridBagConstraints.CENTER;
+        gbc_memStoreAddrTF.fill = GridBagConstraints.HORIZONTAL;
+        gbc_memStoreAddrTF.insets = new Insets(0, 0, 0, 5);
+        gbc_memStoreAddrTF.gridx = 1;
+        gbc_memStoreAddrTF.gridy = 1;
+        gbc_memStoreAddrTF.weightx = 1;
+        gbc_memStoreAddrTF.weighty = 0.1;
+        writeMemoryPanel.add(memStoreAddrTF.getComponent(), gbc_memStoreAddrTF);
 
-        TFstore_val = new IntegerTextField();
-        TFstore_val.setHexMode();
-        GridBagConstraints gbc_TFstore_val = new GridBagConstraints();
-        gbc_TFstore_val.insets = new Insets(0, 0, 0, 5);
-        gbc_TFstore_val.fill = GridBagConstraints.HORIZONTAL;
-        gbc_TFstore_val.anchor = GridBagConstraints.NORTH;
-        gbc_TFstore_val.gridx = 3;
-        gbc_TFstore_val.gridy = 1;
-        gbc_TFstore_val.weightx = 1;
-        gbc_TFstore_val.weighty = 0.1;
-        WMPanel.add(TFstore_val.getComponent(), gbc_TFstore_val);
+        memStoreValueTF = new IntegerTextField();
+        memStoreValueTF.setHexMode();
+        GridBagConstraints gbc_memStoreValueTF = new GridBagConstraints();
+        gbc_memStoreValueTF.insets = new Insets(0, 0, 0, 5);
+        gbc_memStoreValueTF.fill = GridBagConstraints.HORIZONTAL;
+        gbc_memStoreValueTF.anchor = GridBagConstraints.CENTER;
+        gbc_memStoreValueTF.gridx = 3;
+        gbc_memStoreValueTF.gridy = 1;
+        gbc_memStoreValueTF.weightx = 1;
+        gbc_memStoreValueTF.weighty = 0.1;
+        writeMemoryPanel.add(memStoreValueTF.getComponent(), gbc_memStoreValueTF);
 
         btnAddWM = new JButton("");
         btnAddWM.setContentAreaFilled(false);
@@ -587,38 +625,38 @@ public class AngryGhidraProvider extends ComponentProvider {
         GridBagConstraints gbc_btnAddWM = new GridBagConstraints();
         gbc_btnAddWM.weighty = 0.1;
         gbc_btnAddWM.fill = GridBagConstraints.HORIZONTAL;
-        gbc_btnAddWM.anchor = GridBagConstraints.NORTH;
+        gbc_btnAddWM.anchor = GridBagConstraints.CENTER;
         gbc_btnAddWM.insets = new Insets(0, 0, 0, 5);
         gbc_btnAddWM.gridx = 0;
         gbc_btnAddWM.gridy = 1;
         gbc_btnAddWM.weighty = 0.1;
-        WMPanel.add(btnAddWM, gbc_btnAddWM);
+        writeMemoryPanel.add(btnAddWM, gbc_btnAddWM);
         btnAddWM.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                IntegerTextField TFaddr = new IntegerTextField();
-                TFaddr.setHexMode();
-                GridBagConstraints gbc_TFaddr = new GridBagConstraints();
-                gbc_TFaddr.fill = GridBagConstraints.HORIZONTAL;
-                gbc_TFaddr.anchor = GridBagConstraints.NORTH;
-                gbc_TFaddr.gridx = 1;
-                gbc_TFaddr.insets = new Insets(0, 0, 0, 5);
-                gbc_TFaddr.gridy = GuiStoreCounter;
-                gbc_TFaddr.weightx = 1;
-                gbc_TFaddr.weighty = 0.1;
-                WMPanel.add(TFaddr.getComponent(), gbc_TFaddr);
+                IntegerTextField addrTF = new IntegerTextField();
+                addrTF.setHexMode();
+                GridBagConstraints gbc_addrTF = new GridBagConstraints();
+                gbc_addrTF.fill = GridBagConstraints.HORIZONTAL;
+                gbc_addrTF.anchor = GridBagConstraints.CENTER;
+                gbc_addrTF.gridx = 1;
+                gbc_addrTF.insets = new Insets(0, 0, 0, 5);
+                gbc_addrTF.gridy = guiStoreNextId;
+                gbc_addrTF.weightx = 1;
+                gbc_addrTF.weighty = 0.1;
+                writeMemoryPanel.add(addrTF.getComponent(), gbc_addrTF);
 
-                IntegerTextField TFval = new IntegerTextField();
-                TFval.setHexMode();
-                GridBagConstraints gbc_TFval = new GridBagConstraints();
-                gbc_TFval.fill = GridBagConstraints.HORIZONTAL;
-                gbc_TFval.anchor = GridBagConstraints.NORTH;
-                gbc_TFval.insets = new Insets(0, 0, 0, 5);
-                gbc_TFval.gridx = 3;
-                gbc_TFval.gridy = GuiStoreCounter;
-                gbc_TFval.weightx = 1;
-                gbc_TFval.weighty = 0.1;
-                WMPanel.add(TFval.getComponent(), gbc_TFval);
-                memStore.put(TFaddr, TFval);
+                IntegerTextField valTF = new IntegerTextField();
+                valTF.setHexMode();
+                GridBagConstraints gbc_valTF = new GridBagConstraints();
+                gbc_valTF.fill = GridBagConstraints.HORIZONTAL;
+                gbc_valTF.anchor = GridBagConstraints.CENTER;
+                gbc_valTF.insets = new Insets(0, 0, 0, 5);
+                gbc_valTF.gridx = 3;
+                gbc_valTF.gridy = guiStoreNextId;
+                gbc_valTF.weightx = 1;
+                gbc_valTF.weighty = 0.1;
+                writeMemoryPanel.add(valTF.getComponent(), gbc_valTF);
+                memStore.put(addrTF, valTF);
 
                 JButton btnDel = new JButton("");
                 btnDel.setBorder(null);
@@ -626,182 +664,183 @@ public class AngryGhidraProvider extends ComponentProvider {
                 btnDel.setIcon(deleteIcon);
                 GridBagConstraints gbc_btnDel = new GridBagConstraints();
                 gbc_btnDel.fill = GridBagConstraints.HORIZONTAL;
-                gbc_btnDel.anchor = GridBagConstraints.NORTH;
+                gbc_btnDel.anchor = GridBagConstraints.CENTER;
                 gbc_btnDel.insets = new Insets(0, 0, 0, 5);
                 gbc_btnDel.gridx = 0;
-                gbc_btnDel.gridy = GuiStoreCounter++;
+                gbc_btnDel.gridy = guiStoreNextId++;
                 gbc_btnDel.weighty = 0.1;
-                WMPanel.add(btnDel, gbc_btnDel);
+                writeMemoryPanel.add(btnDel, gbc_btnDel);
                 delStoreBtns.add(btnDel);
                 btnDel.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        GuiStoreCounter--;
-                        WMPanel.remove(TFaddr.getComponent());
-                        WMPanel.remove(TFval.getComponent());
-                        WMPanel.remove(btnDel);
+                    public void actionPerformed(ActionEvent actionEvent) {
+                        guiStoreNextId--;
+                        writeMemoryPanel.remove(addrTF.getComponent());
+                        writeMemoryPanel.remove(valTF.getComponent());
+                        writeMemoryPanel.remove(btnDel);
                         delStoreBtns.remove(btnDel);
-                        memStore.remove(TFaddr, TFval);
-                        WMPanel.repaint();
-                        WMPanel.revalidate();
+                        memStore.remove(addrTF, valTF);
+                        writeMemoryPanel.repaint();
+                        writeMemoryPanel.revalidate();
                     }
                 });
-                WMPanel.repaint();
-                WMPanel.revalidate();
+                writeMemoryPanel.repaint();
+                writeMemoryPanel.revalidate();
             }
         });
 
-        GroupLayout gl_CSOPanel = new GroupLayout(CSOPanel);
-        gl_CSOPanel.setHorizontalGroup(
-            gl_CSOPanel.createParallelGroup(Alignment.LEADING)
-                .addGroup(gl_CSOPanel.createSequentialGroup()
+        GroupLayout gl_customOptionsPanel = new GroupLayout(customOptionsPanel);
+        gl_customOptionsPanel.setHorizontalGroup(
+            gl_customOptionsPanel.createParallelGroup(Alignment.LEADING)
+                .addGroup(gl_customOptionsPanel.createSequentialGroup()
                     .addContainerGap()
-                    .addComponent(MemPanel, GroupLayout.DEFAULT_SIZE, 257, Short.MAX_VALUE)
-                    .addGap(24))
-                .addGroup(gl_CSOPanel.createSequentialGroup()
-                    .addContainerGap()
-                    .addGroup(gl_CSOPanel.createParallelGroup(Alignment.LEADING)
-                        .addGroup(gl_CSOPanel.createSequentialGroup()
-                            .addComponent(lblWriteToMemory)
-                            .addPreferredGap(ComponentPlacement.RELATED, 150, GroupLayout.PREFERRED_SIZE))
-                        .addComponent(WMPanel, GroupLayout.DEFAULT_SIZE, 256, Short.MAX_VALUE))
+                    .addComponent(vectorsPanel, GroupLayout.DEFAULT_SIZE, 343, Short.MAX_VALUE)
                     .addGap(25))
-                .addGroup(gl_CSOPanel.createSequentialGroup()
+                .addGroup(gl_customOptionsPanel.createSequentialGroup()
                     .addContainerGap()
-                    .addComponent(RegPanel, GroupLayout.DEFAULT_SIZE, 251, Short.MAX_VALUE)
-                    .addGap(30))
-                .addGroup(gl_CSOPanel.createSequentialGroup()
+                    .addGroup(gl_customOptionsPanel.createParallelGroup(Alignment.LEADING)
+                        .addGroup(gl_customOptionsPanel.createSequentialGroup()
+                            .addComponent(lblWriteToMemory)
+                            .addPreferredGap(ComponentPlacement.RELATED, 237, GroupLayout.PREFERRED_SIZE))
+                        .addComponent(writeMemoryPanel, GroupLayout.DEFAULT_SIZE, 343, Short.MAX_VALUE))
+                    .addGap(25))
+                .addGroup(gl_customOptionsPanel.createSequentialGroup()
                     .addContainerGap()
-                    .addComponent(lbRegisters, GroupLayout.PREFERRED_SIZE, 258, GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(23, Short.MAX_VALUE))
-                .addGroup(gl_CSOPanel.createSequentialGroup()
+                    .addComponent(regPanel, GroupLayout.DEFAULT_SIZE, 343, Short.MAX_VALUE)
+                    .addGap(25))
+                .addGroup(gl_customOptionsPanel.createSequentialGroup()
+                    .addContainerGap()
+                    .addComponent(lbRegisters, GroupLayout.PREFERRED_SIZE, 327, Short.MAX_VALUE)
+                    )
+                .addGroup(gl_customOptionsPanel.createSequentialGroup()
                     .addComponent(lbMemory, GroupLayout.PREFERRED_SIZE, 148, GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(145, Short.MAX_VALUE))
+                    .addContainerGap(232, Short.MAX_VALUE))
         );
-        gl_CSOPanel.setVerticalGroup(
-            gl_CSOPanel.createParallelGroup(Alignment.LEADING)
-                .addGroup(gl_CSOPanel.createSequentialGroup()
+        gl_customOptionsPanel.setVerticalGroup(
+            gl_customOptionsPanel.createParallelGroup(Alignment.LEADING)
+                .addGroup(gl_customOptionsPanel.createSequentialGroup()
                     .addContainerGap()
                     .addComponent(lbMemory, GroupLayout.PREFERRED_SIZE, 13, GroupLayout.PREFERRED_SIZE)
                     .addPreferredGap(ComponentPlacement.RELATED)
-                    .addComponent(MemPanel, GroupLayout.DEFAULT_SIZE, 40, Short.MAX_VALUE)
+                    .addComponent(vectorsPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                     .addGap(23)
                     .addComponent(lblWriteToMemory)
                     .addPreferredGap(ComponentPlacement.RELATED)
-                    .addComponent(WMPanel, GroupLayout.DEFAULT_SIZE, 39, Short.MAX_VALUE)
+                    .addComponent(writeMemoryPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                     .addGap(18)
                     .addComponent(lbRegisters)
                     .addGap(9)
-                    .addComponent(RegPanel, GroupLayout.DEFAULT_SIZE, 38, Short.MAX_VALUE)
+                    .addComponent(regPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                     .addGap(54))
         );
-        GridBagLayout gbl_RegPanel = new GridBagLayout();
-        gbl_RegPanel.columnWidths = new int[] {
-            0,
+        customOptionsPanel.setLayout(gl_customOptionsPanel);
+
+        GridBagLayout gbl_regPanel = new GridBagLayout();
+        gbl_regPanel.columnWidths = new int[] {
             0,
             0,
             0,
             0,
             0
         };
-        gbl_RegPanel.rowHeights = new int[] {
+        gbl_regPanel.rowHeights = new int[] {
             0,
             0
         };
-        gbl_RegPanel.columnWeights = new double[] {
-            0.0,
+        gbl_regPanel.columnWeights = new double[] {
             0.0,
             0.0,
             0.0,
             0.0,
             Double.MIN_VALUE
         };
-        gbl_RegPanel.rowWeights = new double[] {
+        gbl_regPanel.rowWeights = new double[] {
             0.0,
             0.0
         };
-        RegPanel.setLayout(gbl_RegPanel);
+        regPanel.setLayout(gbl_regPanel);
 
         JLabel lblReg = new JLabel("Register");
-        lblReg.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        lblReg.setFont(sansSerif12);
         GridBagConstraints gbc_lblReg = new GridBagConstraints();
         gbc_lblReg.anchor = GridBagConstraints.SOUTH;
         gbc_lblReg.insets = new Insets(0, 0, 0, 5);
         gbc_lblReg.gridx = 1;
         gbc_lblReg.gridy = 0;
         gbc_lblReg.weightx = 1;
-        RegPanel.add(lblReg, gbc_lblReg);
+        regPanel.add(lblReg, gbc_lblReg);
 
-        JLabel lblValue = new JLabel("Value");
-        lblValue.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        JLabel lblValue = new JLabel("  Value ");
+        lblValue.setFont(sansSerif12);
         GridBagConstraints gbc_lblValue = new GridBagConstraints();
         gbc_lblValue.anchor = GridBagConstraints.SOUTH;
         gbc_lblValue.insets = new Insets(0, 0, 0, 5);
         gbc_lblValue.gridx = 3;
         gbc_lblValue.gridy = 0;
         gbc_lblValue.weightx = 1;
-        RegPanel.add(lblValue, gbc_lblValue);
+        regPanel.add(lblValue, gbc_lblValue);
 
         JButton btnAddButton = new JButton("");
         GridBagConstraints gbc_btnAddButton = new GridBagConstraints();
-        gbc_btnAddButton.anchor = GridBagConstraints.NORTH;
+        gbc_btnAddButton.anchor = GridBagConstraints.CENTER;
         gbc_btnAddButton.fill = GridBagConstraints.HORIZONTAL;
         gbc_btnAddButton.insets = new Insets(0, 0, 0, 5);
         gbc_btnAddButton.gridx = 0;
         gbc_btnAddButton.gridy = 1;
         gbc_btnAddButton.weighty = 0.1;
-        RegPanel.add(btnAddButton, gbc_btnAddButton);
+        regPanel.add(btnAddButton, gbc_btnAddButton);
         btnAddButton.setBorder(null);
         btnAddButton.setContentAreaFilled(false);
         btnAddButton.setIcon(addIcon);
 
-        TFVal1 = new JTextField();
-        TFVal1.setBorder(Classic_border);
-        GridBagConstraints gbc_TFVal1 = new GridBagConstraints();
-        gbc_TFVal1.insets = new Insets(0, 0, 0, 5);
-        gbc_TFVal1.anchor = GridBagConstraints.NORTH;
-        gbc_TFVal1.fill = GridBagConstraints.HORIZONTAL;
-        gbc_TFVal1.gridx = 3;
-        gbc_TFVal1.gridy = 1;
-        gbc_TFVal1.weightx = 1;
-        gbc_TFVal1.weighty = 0.1;
-        RegPanel.add(TFVal1, gbc_TFVal1);
+        valueTF = new JTextField();
+        valueTF.setColumns(5);
+        GridBagConstraints gbc_valueTF = new GridBagConstraints();
+        gbc_valueTF.insets = new Insets(0, 0, 0, 5);
+        gbc_valueTF.anchor = GridBagConstraints.CENTER;
+        gbc_valueTF.fill = GridBagConstraints.HORIZONTAL;
+        gbc_valueTF.gridx = 3;
+        gbc_valueTF.gridy = 1;
+        gbc_valueTF.weightx = 1;
+        gbc_valueTF.weighty = 0.1;
+        regPanel.add(valueTF, gbc_valueTF);
 
-        TFReg1 = new JTextField();
-        GridBagConstraints gbc_TFReg1 = new GridBagConstraints();
-        gbc_TFReg1.anchor = GridBagConstraints.NORTH;
-        gbc_TFReg1.fill = GridBagConstraints.HORIZONTAL;
-        gbc_TFReg1.insets = new Insets(0, 0, 0, 5);
-        gbc_TFReg1.gridx = 1;
-        gbc_TFReg1.gridy = 1;
-        gbc_TFReg1.weighty = 0.1;
-        RegPanel.add(TFReg1, gbc_TFReg1);
-        TFReg1.setBorder(Classic_border);
+        registerTF = new JTextField();
+        registerTF.setColumns(5);
+        GridBagConstraints gbc_registerTF = new GridBagConstraints();
+        gbc_registerTF.anchor = GridBagConstraints.CENTER;
+        gbc_registerTF.fill = GridBagConstraints.HORIZONTAL;
+        gbc_registerTF.insets = new Insets(0, 0, 0, 5);
+        gbc_registerTF.gridx = 1;
+        gbc_registerTF.gridy = 1;
+        gbc_registerTF.weighty = 0.1;
+        regPanel.add(registerTF, gbc_registerTF);
 
         btnAddButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                JTextField TFReg = new JTextField();
-                GridBagConstraints gbc_TFReg = new GridBagConstraints();
-                gbc_TFReg.fill = GridBagConstraints.HORIZONTAL;
-                gbc_TFReg.anchor = GridBagConstraints.NORTH;
-                gbc_TFReg.gridx = 1;
-                gbc_TFReg.insets = new Insets(0, 0, 0, 5);
-                gbc_TFReg.gridy = GuiRegCounter;
-                gbc_TFReg.weightx = 1;
-                gbc_TFReg.weighty = 0.1;
-                RegPanel.add(TFReg, gbc_TFReg);
+                JTextField regTF = new JTextField();
+                regTF.setColumns(5);
+                GridBagConstraints gbc_regTF = new GridBagConstraints();
+                gbc_regTF.fill = GridBagConstraints.HORIZONTAL;
+                gbc_regTF.anchor = GridBagConstraints.CENTER;
+                gbc_regTF.gridx = 1;
+                gbc_regTF.insets = new Insets(0, 0, 0, 5);
+                gbc_regTF.gridy = guiRegNextId;
+                gbc_regTF.weightx = 1;
+                gbc_regTF.weighty = 0.1;
+                regPanel.add(regTF, gbc_regTF);
 
-                JTextField TFVal = new JTextField();
-                TFVal.setBorder(Classic_border);
-                GridBagConstraints gbc_TFVal = new GridBagConstraints();
-                gbc_TFVal.fill = GridBagConstraints.HORIZONTAL;
-                gbc_TFVal.anchor = GridBagConstraints.NORTH;
-                gbc_TFVal.insets = new Insets(0, 0, 0, 5);
-                gbc_TFVal.gridx = 3;
-                gbc_TFVal.gridy = GuiRegCounter;
-                gbc_TFVal.weightx = 1;
-                gbc_TFVal.weighty = 0.1;
-                RegPanel.add(TFVal, gbc_TFVal);
-                presetRegs.put(TFReg, TFVal);
+                JTextField valTF = new JTextField();
+                valTF.setColumns(5);
+                GridBagConstraints gbc_valTF = new GridBagConstraints();
+                gbc_valTF.fill = GridBagConstraints.HORIZONTAL;
+                gbc_valTF.anchor = GridBagConstraints.CENTER;
+                gbc_valTF.insets = new Insets(0, 0, 0, 5);
+                gbc_valTF.gridx = 3;
+                gbc_valTF.gridy = guiRegNextId;
+                gbc_valTF.weightx = 1;
+                gbc_valTF.weighty = 0.1;
+                regPanel.add(valTF, gbc_valTF);
+                presetRegs.put(regTF, valTF);
 
                 JButton btnDel = new JButton("");
                 btnDel.setBorder(null);
@@ -810,32 +849,31 @@ public class AngryGhidraProvider extends ComponentProvider {
                 GridBagConstraints gbc_btnDel = new GridBagConstraints();
                 gbc_btnDel.insets = new Insets(0, 0, 0, 5);
                 gbc_btnDel.fill = GridBagConstraints.HORIZONTAL;
-                gbc_btnDel.anchor = GridBagConstraints.NORTH;
+                gbc_btnDel.anchor = GridBagConstraints.CENTER;
                 gbc_btnDel.gridx = 0;
-                gbc_btnDel.gridy = GuiRegCounter++;
+                gbc_btnDel.gridy = guiRegNextId++;
                 gbc_btnDel.weighty = 0.1;
-                RegPanel.add(btnDel, gbc_btnDel);
+                regPanel.add(btnDel, gbc_btnDel);
                 delRegsBtns.add(btnDel);
                 btnDel.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        GuiRegCounter--;
-                        RegPanel.remove(TFReg);
-                        RegPanel.remove(TFVal);
-                        RegPanel.remove(btnDel);
-                        delRegsBtns.remove(btnDel);                        
-                        presetRegs.remove(TFReg, TFVal);
-                        RegPanel.repaint();
-                        RegPanel.revalidate();
+                    public void actionPerformed(ActionEvent actionEvent) {
+                        guiRegNextId--;
+                        delRegsBtns.remove(btnDel);
+                        presetRegs.remove(regTF, valTF);
+                        regPanel.remove(regTF);
+                        regPanel.remove(valTF);
+                        regPanel.remove(btnDel);
+                        regPanel.repaint();
+                        regPanel.revalidate();
                     }
-
                 });
-                RegPanel.repaint();
-                RegPanel.revalidate();
+                regPanel.repaint();
+                regPanel.revalidate();
             }
         });
 
-        GridBagLayout gbl_MemPanel = new GridBagLayout();
-        gbl_MemPanel.columnWidths = new int[] {
+        GridBagLayout gbl_vectorsPanel = new GridBagLayout();
+        gbl_vectorsPanel.columnWidths = new int[] {
             0,
             0,
             0,
@@ -843,11 +881,11 @@ public class AngryGhidraProvider extends ComponentProvider {
             0,
             0
         };
-        gbl_MemPanel.rowHeights = new int[] {
+        gbl_vectorsPanel.rowHeights = new int[] {
             0,
             0
         };
-        gbl_MemPanel.columnWeights = new double[] {
+        gbl_vectorsPanel.columnWeights = new double[] {
             0.0,
             0.0,
             0.0,
@@ -855,369 +893,353 @@ public class AngryGhidraProvider extends ComponentProvider {
             0.0,
             Double.MIN_VALUE
         };
-        gbl_MemPanel.rowWeights = new double[] {
+        gbl_vectorsPanel.rowWeights = new double[] {
             0.0,
             0.0
         };
-        MemPanel.setLayout(gbl_MemPanel);
-
+        vectorsPanel.setLayout(gbl_vectorsPanel);
         JButton btnAddMem = new JButton("");
         GridBagConstraints gbc_btnAddMem = new GridBagConstraints();
-        gbc_btnAddMem.anchor = GridBagConstraints.NORTH;
+        gbc_btnAddMem.anchor = GridBagConstraints.CENTER;
         gbc_btnAddMem.fill = GridBagConstraints.HORIZONTAL;
         gbc_btnAddMem.insets = new Insets(0, 0, 0, 5);
         gbc_btnAddMem.gridx = 0;
         gbc_btnAddMem.gridy = 1;
         gbc_btnAddMem.weighty = 0.1;
-        MemPanel.add(btnAddMem, gbc_btnAddMem);
+        vectorsPanel.add(btnAddMem, gbc_btnAddMem);
         btnAddMem.setIcon(addIcon);
         btnAddMem.setBorder(null);
         btnAddMem.setContentAreaFilled(false);
 
         JLabel lbMemAddr = new JLabel("Address");
-        lbMemAddr.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        lbMemAddr.setFont(sansSerif12);
         GridBagConstraints gbc_lbMemAddr = new GridBagConstraints();
         gbc_lbMemAddr.insets = new Insets(0, 0, 0, 5);
         gbc_lbMemAddr.gridx = 1;
         gbc_lbMemAddr.gridy = 0;
         gbc_lbMemAddr.weightx = 1;
-        MemPanel.add(lbMemAddr, gbc_lbMemAddr);
+        vectorsPanel.add(lbMemAddr, gbc_lbMemAddr);
 
         JLabel lblLentgh = new JLabel("Length");
-        lblLentgh.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        lblLentgh.setFont(sansSerif12);
         GridBagConstraints gbc_lblLentgh = new GridBagConstraints();
         gbc_lblLentgh.insets = new Insets(0, 0, 0, 5);
         gbc_lblLentgh.gridx = 3;
         gbc_lblLentgh.gridy = 0;
         gbc_lblLentgh.weightx = 1;
-        MemPanel.add(lblLentgh, gbc_lblLentgh);
+        vectorsPanel.add(lblLentgh, gbc_lblLentgh);
 
-        TFsymbmem_addr = new IntegerTextField();
-        TFsymbmem_addr.setHexMode();
-        GridBagConstraints gbc_TFsymbmem_addr = new GridBagConstraints();
-        gbc_TFsymbmem_addr.anchor = GridBagConstraints.NORTH;
-        gbc_TFsymbmem_addr.fill = GridBagConstraints.HORIZONTAL;
-        gbc_TFsymbmem_addr.insets = new Insets(0, 0, 0, 5);
-        gbc_TFsymbmem_addr.gridx = 1;
-        gbc_TFsymbmem_addr.gridy = 1;
-        gbc_TFsymbmem_addr.weightx = 1;
-        gbc_TFsymbmem_addr.weighty = 0.1;
-        MemPanel.add(TFsymbmem_addr.getComponent(), gbc_TFsymbmem_addr);
+        vectorAddressTF = new IntegerTextField();
+        vectorAddressTF.setHexMode();
+        GridBagConstraints gbc_vectorAddressTF = new GridBagConstraints();
+        gbc_vectorAddressTF.anchor = GridBagConstraints.CENTER;
+        gbc_vectorAddressTF.fill = GridBagConstraints.HORIZONTAL;
+        gbc_vectorAddressTF.insets = new Insets(0, 0, 0, 5);
+        gbc_vectorAddressTF.gridx = 1;
+        gbc_vectorAddressTF.gridy = 1;
+        gbc_vectorAddressTF.weightx = 1;
+        gbc_vectorAddressTF.weighty = 0.1;
+        vectorsPanel.add(vectorAddressTF.getComponent(), gbc_vectorAddressTF);
 
-        TFsymbmem_len = new IntegerTextField();
-        GridBagConstraints gbc_TFsymbmem_len = new GridBagConstraints();
-        gbc_TFsymbmem_len.insets = new Insets(0, 0, 0, 5);
-        gbc_TFsymbmem_len.fill = GridBagConstraints.HORIZONTAL;
-        gbc_TFsymbmem_len.anchor = GridBagConstraints.NORTH;
-        gbc_TFsymbmem_len.gridx = 3;
-        gbc_TFsymbmem_len.gridy = 1;
-        gbc_TFsymbmem_len.weightx = 1;
-        gbc_TFsymbmem_len.weighty = 0.1;
-        MemPanel.add(TFsymbmem_len.getComponent(), gbc_TFsymbmem_len);
+        vectorLenTF = new IntegerTextField();
+        GridBagConstraints gbc_vectorLenTF = new GridBagConstraints();
+        gbc_vectorLenTF.insets = new Insets(0, 0, 0, 5);
+        gbc_vectorLenTF.fill = GridBagConstraints.HORIZONTAL;
+        gbc_vectorLenTF.anchor = GridBagConstraints.CENTER;
+        gbc_vectorLenTF.gridx = 3;
+        gbc_vectorLenTF.gridy = 1;
+        gbc_vectorLenTF.weightx = 1;
+        gbc_vectorLenTF.weighty = 0.1;
+        vectorsPanel.add(vectorLenTF.getComponent(), gbc_vectorLenTF);
 
         btnAddMem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                IntegerTextField TFaddr = new IntegerTextField();
-                TFaddr.setHexMode();
-                GridBagConstraints gbc_TFaddr = new GridBagConstraints();
-                gbc_TFaddr.fill = GridBagConstraints.HORIZONTAL;
-                gbc_TFaddr.anchor = GridBagConstraints.NORTH;
-                gbc_TFaddr.gridx = 1;
-                gbc_TFaddr.insets = new Insets(0, 0, 0, 5);
-                gbc_TFaddr.gridy = GuiMemCounter;
-                gbc_TFaddr.weightx = 1;
-                gbc_TFaddr.weighty = 0.1;
-                MemPanel.add(TFaddr.getComponent(), gbc_TFaddr);
+                IntegerTextField addrTF = new IntegerTextField();
+                addrTF.setHexMode();
+                GridBagConstraints gbc_addrTF = new GridBagConstraints();
+                gbc_addrTF.fill = GridBagConstraints.HORIZONTAL;
+                gbc_addrTF.anchor = GridBagConstraints.CENTER;
+                gbc_addrTF.gridx = 1;
+                gbc_addrTF.insets = new Insets(0, 0, 0, 5);
+                gbc_addrTF.gridy = guiMemNextId;
+                gbc_addrTF.weightx = 1;
+                gbc_addrTF.weighty = 0.1;
+                vectorsPanel.add(addrTF.getComponent(), gbc_addrTF);
 
-                IntegerTextField TFlen = new IntegerTextField();
-                GridBagConstraints gbc_TFlen = new GridBagConstraints();
-                gbc_TFlen.fill = GridBagConstraints.HORIZONTAL;
-                gbc_TFlen.anchor = GridBagConstraints.NORTH;
-                gbc_TFlen.insets = new Insets(0, 0, 0, 5);
-                gbc_TFlen.gridx = 3;
-                gbc_TFlen.gridy = GuiMemCounter;
-                gbc_TFlen.weightx = 1;
-                gbc_TFlen.weighty = 0.1;
-                MemPanel.add(TFlen.getComponent(), gbc_TFlen);
-                vectors.put(TFaddr, TFlen);
-                
+                IntegerTextField lenTF = new IntegerTextField();
+                GridBagConstraints gbc_lenTF = new GridBagConstraints();
+                gbc_lenTF.fill = GridBagConstraints.HORIZONTAL;
+                gbc_lenTF.anchor = GridBagConstraints.CENTER;
+                gbc_lenTF.insets = new Insets(0, 0, 0, 5);
+                gbc_lenTF.gridx = 3;
+                gbc_lenTF.gridy = guiMemNextId;
+                gbc_lenTF.weightx = 1;
+                gbc_lenTF.weighty = 0.1;
+                vectorsPanel.add(lenTF.getComponent(), gbc_lenTF);
+                vectors.put(addrTF, lenTF);
+
                 JButton btnDel = new JButton("");
                 btnDel.setBorder(null);
                 btnDel.setContentAreaFilled(false);
                 btnDel.setIcon(deleteIcon);
                 GridBagConstraints gbc_btnDel = new GridBagConstraints();
                 gbc_btnDel.fill = GridBagConstraints.HORIZONTAL;
-                gbc_btnDel.anchor = GridBagConstraints.NORTH;
+                gbc_btnDel.anchor = GridBagConstraints.CENTER;
                 gbc_btnDel.insets = new Insets(0, 0, 0, 5);
                 gbc_btnDel.gridx = 0;
-                gbc_btnDel.gridy = GuiMemCounter++;
+                gbc_btnDel.gridy = guiMemNextId++;
                 gbc_btnDel.weighty = 0.1;
-                MemPanel.add(btnDel, gbc_btnDel);
+                vectorsPanel.add(btnDel, gbc_btnDel);
                 delMemBtns.add(btnDel);
                 btnDel.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        GuiMemCounter--;
-                        MemPanel.remove(TFaddr.getComponent());
-                        MemPanel.remove(TFlen.getComponent());
-                        MemPanel.remove(btnDel);
-                        delMemBtns.remove(btnDel);                       
-                        vectors.remove(TFaddr, TFlen);
-                        MemPanel.repaint();
-                        MemPanel.revalidate();
+                    public void actionPerformed(ActionEvent actionEvent) {
+                        guiMemNextId--;
+                        vectorsPanel.remove(addrTF.getComponent());
+                        vectorsPanel.remove(lenTF.getComponent());
+                        vectorsPanel.remove(btnDel);
+                        delMemBtns.remove(btnDel);
+                        vectors.remove(addrTF, lenTF);
+                        vectorsPanel.repaint();
+                        vectorsPanel.revalidate();
                     }
                 });
-                MemPanel.repaint();
-                MemPanel.revalidate();
+                vectorsPanel.repaint();
+                vectorsPanel.revalidate();
             }
         });
 
-        CSOPanel.setLayout(gl_CSOPanel);
-        ImageIcon Starticon = new ImageIcon(getClass().getResource("/images/flag.png"));
-        ImageIcon Stopicon = new ImageIcon(getClass().getResource("/images/stop.png"));
-
-        EndPanel = new JPanel();
-        EndPanel.setBorder(null);
 
         lbStatus = new JLabel("Status:");
         lbStatus.setForeground(Color.BLUE);
-        lbStatus.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        lbStatus.setFont(sansSerif13);
 
-        StatusLabel = new JLabel(main_str);
-        StatusLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        statusLabel = new JLabel(configuringString);
+        statusLabel.setFont(sansSerif13);
 
-        StatusLabelFound = new JLabel("");
-        StatusLabelFound.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        statusLabelFound = new JLabel("");
+        statusLabelFound.setFont(sansSerif13);
 
         btnRun = new JButton("Run");
-        btnRun.setIcon(Starticon);
-        btnRun.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        btnRun.setIcon(startIcon);
+        btnRun.setFont(sansSerif12);
 
-        SolutionArea = new JTextArea();
-        SolutionArea.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        scrollSolution = new JScrollPane(SolutionArea);
-        SolutionArea.setEditable(false);
-        scrollSolution.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-        scrollSolution.setBorder(new LineBorder(Color.blue, 1));
-        scrollSolution.setVisible(false);
+        solutionTextArea = new JTextArea();
+        solutionTextArea.setFont(sansSerif12);
+        scrollSolutionTextArea = new JScrollPane(solutionTextArea);
+        solutionTextArea.setEditable(false);
+        scrollSolutionTextArea.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollSolutionTextArea.setBorder(new LineBorder(Color.blue, 1));
+        scrollSolutionTextArea.setVisible(false);
 
         btnStop = new JButton("Stop");
         btnStop.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                if (new File(TmpDir + "angr_options.json").exists()) {
-                    isTerminated = true;
-                    StatusLabel.setText("[+] Stopping...");
-                    StatusLabelFound.setText("");
-                    scrollSolution.setVisible(false);
+                if (new File(tmpDir + "angr_options.json").exists()) {
+                    setIsTerminated(true);
+                    statusLabel.setText("[+] Stopping...");
+                    statusLabelFound.setText("");
+                    scrollSolutionTextArea.setVisible(false);
                 }
             }
         });
-        btnStop.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        btnStop.setIcon(Stopicon);
-        
+        btnStop.setFont(sansSerif12);
+        btnStop.setIcon(stopIcon);
+
         btnReset = new JButton("Reset");
-        btnReset.setFont(new Font("SansSerif", Font.PLAIN, 12)); 
+        btnReset.setIcon(resetIcon);
+        btnReset.setFont(sansSerif12);
         btnReset.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 resetState();
             }
-        });              
+        });
 
-        GroupLayout gl_EndPanel = new GroupLayout(EndPanel);
-        gl_EndPanel.setHorizontalGroup(
-            gl_EndPanel.createParallelGroup(Alignment.LEADING)
-                .addGroup(gl_EndPanel.createSequentialGroup()
+        GroupLayout gl_statusPanel = new GroupLayout(statusPanel);
+        gl_statusPanel.setHorizontalGroup(
+            gl_statusPanel.createParallelGroup(Alignment.LEADING)
+                .addGroup(gl_statusPanel.createSequentialGroup()
                     .addGap(10)
-                    .addComponent(StatusLabelFound, GroupLayout.DEFAULT_SIZE, 127, Short.MAX_VALUE)
+                    .addComponent(statusLabelFound, GroupLayout.DEFAULT_SIZE, 127, Short.MAX_VALUE)
                     .addGap(71)
-                    .addComponent(scrollSolution, GroupLayout.DEFAULT_SIZE, 378, Short.MAX_VALUE)
+                    .addComponent(scrollSolutionTextArea, GroupLayout.DEFAULT_SIZE, 378, Short.MAX_VALUE)
                     .addGap(10))
-                .addGroup(gl_EndPanel.createSequentialGroup()
-                    .addGroup(gl_EndPanel.createParallelGroup(Alignment.TRAILING)
-                        .addGroup(gl_EndPanel.createSequentialGroup()
+                .addGroup(gl_statusPanel.createSequentialGroup()
+                    .addGroup(gl_statusPanel.createParallelGroup(Alignment.TRAILING)
+                        .addGroup(gl_statusPanel.createSequentialGroup()
                             .addGap(77)
                             .addComponent(btnRun, GroupLayout.DEFAULT_SIZE, 116, Short.MAX_VALUE)
                             .addGap(77)
                             .addComponent(btnStop, GroupLayout.DEFAULT_SIZE, 116, Short.MAX_VALUE)
                             .addGap(77)
                             .addComponent(btnReset, GroupLayout.DEFAULT_SIZE, 116, Short.MAX_VALUE)
-                            .addGap(1))                        
-                        .addGroup(gl_EndPanel.createSequentialGroup()
+                            .addGap(1))
+                        .addGroup(gl_statusPanel.createSequentialGroup()
                             .addGap(10)
-                            .addComponent(StatusLabel, GroupLayout.DEFAULT_SIZE, 495, Short.MAX_VALUE)))
+                            .addComponent(statusLabel, GroupLayout.DEFAULT_SIZE, 495, Short.MAX_VALUE)))
                     .addGap(91))
-                .addGroup(gl_EndPanel.createSequentialGroup()
+                .addGroup(gl_statusPanel.createSequentialGroup()
                     .addContainerGap()
                     .addComponent(lbStatus, GroupLayout.PREFERRED_SIZE, 46, GroupLayout.PREFERRED_SIZE)
                     .addContainerGap(538, Short.MAX_VALUE))
         );
-        gl_EndPanel.setVerticalGroup(
-            gl_EndPanel.createParallelGroup(Alignment.LEADING)
-                .addGroup(gl_EndPanel.createSequentialGroup()
+        gl_statusPanel.setVerticalGroup(
+            gl_statusPanel.createParallelGroup(Alignment.LEADING)
+                .addGroup(gl_statusPanel.createSequentialGroup()
                     .addGap(10)
-                    .addGroup(gl_EndPanel.createParallelGroup(Alignment.BASELINE)
+                    .addGroup(gl_statusPanel.createParallelGroup(Alignment.BASELINE)
                         .addComponent(btnRun, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE)
                         .addComponent(btnStop, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE)
-                        .addComponent(btnReset, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE))                    
+                        .addComponent(btnReset, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE))
                     .addPreferredGap(ComponentPlacement.RELATED)
                     .addComponent(lbStatus, GroupLayout.PREFERRED_SIZE, 13, GroupLayout.PREFERRED_SIZE)
                     .addPreferredGap(ComponentPlacement.RELATED)
-                    .addComponent(StatusLabel, GroupLayout.PREFERRED_SIZE, 17, GroupLayout.PREFERRED_SIZE)
-                    .addGroup(gl_EndPanel.createParallelGroup(Alignment.LEADING)
-                        .addGroup(gl_EndPanel.createSequentialGroup()
+                    .addComponent(statusLabel, GroupLayout.PREFERRED_SIZE, 17, GroupLayout.PREFERRED_SIZE)
+                    .addGroup(gl_statusPanel.createParallelGroup(Alignment.LEADING)
+                        .addGroup(gl_statusPanel.createSequentialGroup()
                             .addGap(5)
-                            .addComponent(StatusLabelFound, GroupLayout.PREFERRED_SIZE, 15, GroupLayout.PREFERRED_SIZE))
-                        .addGroup(gl_EndPanel.createSequentialGroup()
+                            .addComponent(statusLabelFound, GroupLayout.PREFERRED_SIZE, 15, GroupLayout.PREFERRED_SIZE))
+                        .addGroup(gl_statusPanel.createSequentialGroup()
                             .addPreferredGap(ComponentPlacement.RELATED)
-                            .addComponent(scrollSolution, GroupLayout.DEFAULT_SIZE, 36, Short.MAX_VALUE)))
+                            .addComponent(scrollSolutionTextArea, GroupLayout.DEFAULT_SIZE, 36, Short.MAX_VALUE)))
                     .addContainerGap())
         );
-        EndPanel.setLayout(gl_EndPanel);
+        statusPanel.setLayout(gl_statusPanel);
 
-        JPanel HookPanel = new JPanel();
+        JPanel hookPanel = new JPanel();
         TitledBorder borderHP = BorderFactory.createTitledBorder("Hook options");
-        borderHP.setTitleFont(new Font("SansSerif", Font.PLAIN, 12));
-        HookPanel.setBorder(borderHP);
+        borderHP.setTitleFont(sansSerif12);
+        hookPanel.setBorder(borderHP);
 
-        GroupLayout gl_panel = new GroupLayout(panel);
-        gl_panel.setHorizontalGroup(
-            gl_panel.createParallelGroup(Alignment.TRAILING)
-            .addGroup(gl_panel.createSequentialGroup()
-                .addGroup(gl_panel.createParallelGroup(Alignment.LEADING)
-                    .addGroup(gl_panel.createSequentialGroup()
+        GroupLayout gl_mainPanel = new GroupLayout(mainPanel);
+        gl_mainPanel.setHorizontalGroup(
+            gl_mainPanel.createParallelGroup(Alignment.TRAILING)
+            .addGroup(gl_mainPanel.createSequentialGroup()
+                .addGroup(gl_mainPanel.createParallelGroup(Alignment.LEADING)
+                    .addGroup(gl_mainPanel.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(EndPanel, GroupLayout.DEFAULT_SIZE, 550, Short.MAX_VALUE))
-                    .addGroup(gl_panel.createSequentialGroup()
-                        .addGroup(gl_panel.createParallelGroup(Alignment.LEADING)
-                            .addGroup(gl_panel.createSequentialGroup()
+                        .addComponent(statusPanel, GroupLayout.DEFAULT_SIZE, 550, Short.MAX_VALUE))
+                    .addGroup(gl_mainPanel.createSequentialGroup()
+                        .addGroup(gl_mainPanel.createParallelGroup(Alignment.LEADING)
+                            .addGroup(gl_mainPanel.createSequentialGroup()
                                 .addGap(10)
-                                .addComponent(MPOPanel, GroupLayout.DEFAULT_SIZE, 275, Short.MAX_VALUE))
-                            .addGroup(gl_panel.createSequentialGroup()
+                                .addComponent(mainOptionsPanel, GroupLayout.DEFAULT_SIZE, 275, Short.MAX_VALUE))
+                            .addGroup(gl_mainPanel.createSequentialGroup()
                                 .addContainerGap()
-                                .addComponent(SAPanel, GroupLayout.DEFAULT_SIZE, 275, Short.MAX_VALUE))
-                            .addGroup(gl_panel.createSequentialGroup()
+                                .addComponent(argumentsPanel, GroupLayout.DEFAULT_SIZE, 275, Short.MAX_VALUE))
+                            .addGroup(gl_mainPanel.createSequentialGroup()
                                 .addContainerGap()
-                                .addComponent(HookPanel, GroupLayout.DEFAULT_SIZE, 275, Short.MAX_VALUE)))
+                                .addComponent(hookPanel, GroupLayout.DEFAULT_SIZE, 275, Short.MAX_VALUE)))
                         .addPreferredGap(ComponentPlacement.RELATED)
-                        .addComponent(CSOPanel, GroupLayout.DEFAULT_SIZE, 269, Short.MAX_VALUE)))
+                        .addComponent(customOptionsPanel, GroupLayout.DEFAULT_SIZE, 269, Short.MAX_VALUE)))
                 .addGap(13))
         );
-        gl_panel.setVerticalGroup(
-            gl_panel.createParallelGroup(Alignment.LEADING)
-            .addGroup(gl_panel.createSequentialGroup()
-                .addGroup(gl_panel.createParallelGroup(Alignment.LEADING)
-                    .addGroup(gl_panel.createSequentialGroup()
+        gl_mainPanel.setVerticalGroup(
+            gl_mainPanel.createParallelGroup(Alignment.LEADING)
+            .addGroup(gl_mainPanel.createSequentialGroup()
+                .addGroup(gl_mainPanel.createParallelGroup(Alignment.LEADING)
+                    .addGroup(gl_mainPanel.createSequentialGroup()
                         .addGap(10)
-                        .addComponent(MPOPanel, GroupLayout.DEFAULT_SIZE, 178, Short.MAX_VALUE)
+                        .addComponent(mainOptionsPanel, GroupLayout.DEFAULT_SIZE, 178, Short.MAX_VALUE)
                         .addGap(2)
-                        .addComponent(SAPanel, GroupLayout.DEFAULT_SIZE, 81, Short.MAX_VALUE)
+                        .addComponent(argumentsPanel, GroupLayout.DEFAULT_SIZE, 81, Short.MAX_VALUE)
                         .addPreferredGap(ComponentPlacement.RELATED)
-                        .addComponent(HookPanel, GroupLayout.DEFAULT_SIZE, 90, Short.MAX_VALUE))
-                    .addGroup(gl_panel.createSequentialGroup()
+                        .addComponent(hookPanel, GroupLayout.DEFAULT_SIZE, 90, Short.MAX_VALUE))
+                    .addGroup(gl_mainPanel.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(CSOPanel, GroupLayout.DEFAULT_SIZE, 357, Short.MAX_VALUE)))
+                        .addComponent(customOptionsPanel, GroupLayout.DEFAULT_SIZE, 357, Short.MAX_VALUE)))
                 .addPreferredGap(ComponentPlacement.UNRELATED)
-                .addComponent(EndPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                .addComponent(statusPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                 .addGap(5))
         );
+        mainPanel.setLayout(gl_mainPanel);
 
         JButton btnAddHook = new JButton("Add Hook");
         btnAddHook.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                HookCreation window = new HookCreation();
-                window.main();
+                if (getHookWindowState()) {
+                    hookHandler = new HookHandler(AngryGhidraProvider.this);
+                    hookHandler.main();
+                    setHookWindowState(false);
+                } else {
+                    hookHandler.toFront();
+                }
             }
         });
         btnAddHook.setFont(new Font("SansSerif", Font.PLAIN, 11));
-        RegHookPanel = new JPanel();
 
-        GroupLayout gl_HookPanel = new GroupLayout(HookPanel);
-        gl_HookPanel.setHorizontalGroup(
-            gl_HookPanel.createParallelGroup(Alignment.LEADING)
-                .addGroup(gl_HookPanel.createSequentialGroup()
+        GroupLayout gl_hookPanel = new GroupLayout(hookPanel);
+        gl_hookPanel.setHorizontalGroup(
+            gl_hookPanel.createParallelGroup(Alignment.LEADING)
+                .addGroup(gl_hookPanel.createSequentialGroup()
                     .addContainerGap()
                     .addComponent(btnAddHook, GroupLayout.PREFERRED_SIZE, 105, Short.MAX_VALUE)
                     .addGap(43)
-                    .addComponent(RegHookPanel, GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
+                    .addComponent(hookLablesPanel, GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
                     .addContainerGap())
         );
-        gl_HookPanel.setVerticalGroup(
-            gl_HookPanel.createParallelGroup(Alignment.TRAILING)
-                .addGroup(gl_HookPanel.createSequentialGroup()
-                    .addGroup(gl_HookPanel.createParallelGroup(Alignment.TRAILING)
-                        .addGroup(Alignment.LEADING, gl_HookPanel.createSequentialGroup()
+        gl_hookPanel.setVerticalGroup(
+            gl_hookPanel.createParallelGroup(Alignment.TRAILING)
+                .addGroup(gl_hookPanel.createSequentialGroup()
+                    .addGroup(gl_hookPanel.createParallelGroup(Alignment.TRAILING)
+                        .addGroup(Alignment.LEADING, gl_hookPanel.createSequentialGroup()
                             .addContainerGap()
                             .addComponent(btnAddHook))
-                        .addGroup(gl_HookPanel.createSequentialGroup()
+                        .addGroup(gl_hookPanel.createSequentialGroup()
                             .addGap(10)
-                            .addComponent(RegHookPanel, GroupLayout.DEFAULT_SIZE, 26, Short.MAX_VALUE)))
+                            .addComponent(hookLablesPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
                     .addGap(34))
         );
-        GridBagLayout gbl_RegHookPanel = new GridBagLayout();
-        gbl_RegHookPanel.columnWidths = new int[] {
-            0
-        };
-        gbl_RegHookPanel.rowHeights = new int[] {
-            0
-        };
-        gbl_RegHookPanel.columnWeights = new double[] {
-            Double.MIN_VALUE
-        };
-        gbl_RegHookPanel.rowWeights = new double[] {
-            Double.MIN_VALUE
-        };
-        RegHookPanel.setLayout(gbl_RegHookPanel);
-        HookPanel.setLayout(gl_HookPanel);
-        panel.setLayout(gl_panel);
+        hookPanel.setLayout(gl_hookPanel);
+
+        GridBagLayout gbl_hookLablesPanel = new GridBagLayout();
+        gbl_hookLablesPanel.columnWidths = new int[] {0};
+        gbl_hookLablesPanel.rowHeights = new int[] {0};
+        gbl_hookLablesPanel.columnWeights = new double[] {Double.MIN_VALUE};
+        gbl_hookLablesPanel.rowWeights = new double[] {Double.MIN_VALUE};
+        hookLablesPanel.setLayout(gbl_hookLablesPanel);
         btnRun.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                StatusLabel.setText(main_str);
-                StatusLabelFound.setText("");
-                isTerminated = false;
-                angr_options = new JSONObject();
-
+                statusLabel.setText(configuringString);
+                statusLabelFound.setText("");
+                setIsTerminated(false);
+                angrProcessing.clearTraceList(false);
+                JSONObject angr_options = new JSONObject();
                 Boolean auto_load_libs = false;
-                if (chckbxAutoloadlibs.isSelected()) {
+                if (chckbxAutoLoadLibs.isSelected()) {
                     auto_load_libs = true;
                 }
-
                 angr_options.put("auto_load_libs", auto_load_libs);
-
                 if (chckbxBlankState.isSelected()) {
-                    if (!TFBlankState.getText().matches("0x[0-9A-Fa-f]+")) {
-                        TFBlankState.setBorder(new LineBorder(Color.red, 1));
-                        StatusLabel.setText("[-] Error: please, enter the correct hex value.");
+                    if (!blankStateTF.getText().matches("0x[0-9A-Fa-f]+")) {
+                        statusLabel.setForeground(Color.red);
+                        statusLabel.setText("[–] Error: enter the correct blank state address value in hex format!");
                         return;
                     }
-                    TFBlankState.setBorder(Classic_border);
-                    String blank_state = TFBlankState.getText();
+                    String blank_state = blankStateTF.getText();
                     angr_options.put("blank_state", blank_state);
                 }
-                if (!TFFind.getText().matches("0x[0-9A-Fa-f]+")) {
-                    TFFind.setBorder(new LineBorder(Color.red, 1));
-                    StatusLabel.setText("[-] Error: please, enter the correct hex value without spaces.");
+                if (!dstAddressTF.getText().matches("0x[0-9A-Fa-f]+")) {
+                    statusLabel.setForeground(Color.red);
+                    statusLabel.setText("[–] Error: enter the correct destination address in hex format!");
                     return;
                 }
-                TFFind.setBorder(Classic_border);
-                String find_addr = TFFind.getText();
+                String find_addr = dstAddressTF.getText();
                 angr_options.put("find_address", find_addr);
-                
                 if (chckbxAvoidAddresses.isSelected()) {
-                    if (!textArea.getText().replaceAll("\\s+", "").matches("[0x0-9a-fA-F, /,]+")) {
-                        textArea.setBorder(new LineBorder(Color.red, 1));
-                        StatusLabel.setText("[-] Error: please, enter the correct hex values separated by comma.");
+                    if (!avoidTextArea.getText().replaceAll("\\s+", "").matches("[0x0-9a-fA-F, /,]+")) {
+                        statusLabel.setForeground(Color.red);
+                        statusLabel.setText("[–] Error: enter the correct avoid addresses in hex format separated by comma!");
                         return;
                     }
-                    textArea.setBorder(textAreaDefaultBorder);
-                    String avoid = textArea.getText().replaceAll("\\s+", "");
+                    String avoid = avoidTextArea.getText().replaceAll("\\s+", "");
                     angr_options.put("avoid_address", avoid);
                 }
-                
                 if (chckbxArg.isSelected()) {
-                    if (!TFFirstArg.getText().isEmpty()) {
+                    if (!firstArgTF.getText().isEmpty()) {
                         JSONObject argDetails = new JSONObject();
                         int id = 1;
-                        argDetails.put(String.valueOf(id++), TFFirstArg.getText());
-                        for (IntegerTextField itf : TFsOfArgs) {
+                        argDetails.put(String.valueOf(id++), firstArgTF.getText());
+                        for (IntegerTextField itf : argsTF) {
                             String value = itf.getText();
                             if (!value.isEmpty()) {
                                 argDetails.put(String.valueOf(id), value);
@@ -1227,11 +1249,10 @@ public class AngryGhidraProvider extends ComponentProvider {
                         angr_options.put("arguments", argDetails);
                     }
                 }
-
-                if (!TFsymbmem_addr.getText().isEmpty() &&
-                        !TFsymbmem_len.getText().isEmpty()) {
+                if (!vectorAddressTF.getText().isEmpty() &&
+                        !vectorLenTF.getText().isEmpty()) {
                     JSONObject vectorDetails = new JSONObject();
-                    vectorDetails.put(TFsymbmem_addr.getText(), TFsymbmem_len.getText());
+                    vectorDetails.put(vectorAddressTF.getText(), vectorLenTF.getText());
                     for (Entry<IntegerTextField, IntegerTextField> entry : vectors.entrySet()) {
                         String addr = entry.getKey().getText();
                         String len = entry.getValue().getText();
@@ -1241,22 +1262,20 @@ public class AngryGhidraProvider extends ComponentProvider {
                     }
                     angr_options.put("vectors", vectorDetails);
                 }
-
-                if (!TFstore_addr.getText().isEmpty() && !TFstore_val.getText().isEmpty()) {
+                if (!memStoreAddrTF.getText().isEmpty() && !memStoreValueTF.getText().isEmpty()) {
                     JSONObject storeDetails = new JSONObject();
-                    storeDetails.put(TFstore_addr.getText(), TFstore_val.getText());
+                    storeDetails.put(memStoreAddrTF.getText(), memStoreValueTF.getText());
                     for (Entry<IntegerTextField, IntegerTextField> entry : memStore.entrySet()) {
                         String addr = entry.getKey().getText();
                         String val = entry.getValue().getText();
                         if (!addr.isEmpty() && !val.isEmpty()) {
                             storeDetails.put(addr, val);
-                    }                    	
+                        }
                     }
                     angr_options.put("mem_store", storeDetails);
                 }
-                
-                String reg1 = TFReg1.getText();
-                String val1 = TFVal1.getText();
+                String reg1 = registerTF.getText();
+                String val1 = valueTF.getText();
                 if (symbolicVectorInputCheck(reg1, val1)) {
                     JSONObject regDetails = new JSONObject();
                     regDetails.put(reg1, val1);
@@ -1269,14 +1288,13 @@ public class AngryGhidraProvider extends ComponentProvider {
                     }
                     angr_options.put("regs_vals", regDetails);
                 }
-
                 if (!hooks.isEmpty()) {
                     JSONArray hookList = new JSONArray();
                     for (Entry <String[], String[][]> entry: hooks.entrySet()) {
                         JSONObject hookDetails = new JSONObject();
                         String[] hookOptions = entry.getKey();
                         String hookAddress = hookOptions[0];
-                        hookDetails.put("Length", hookOptions[1]);
+                        hookDetails.put("length", hookOptions[1]);
                         String[][] regs = entry.getValue();
                         for (int i = 0; i <regs[0].length; i++) {
                             if (regs[0][i] != null && regs[1][i] != null) {
@@ -1289,311 +1307,299 @@ public class AngryGhidraProvider extends ComponentProvider {
                     }
                     angr_options.put("hooks", hookList);
                 }
-                panel.revalidate();
-                
                 String binary_path = thisProgram.getExecutablePath();
-
-                if (System.getProperty("os.name").contains("Windows")) {
+                if (isWindows) {
                     binary_path = binary_path.replaceFirst("/", "");
                     binary_path = binary_path.replace("/", "\\");
                 }
                 angr_options.put("binary_file", binary_path);
                 angr_options.put("base_address", "0x" + Long.toHexString(thisProgram.getMinAddress().getOffset()));
-                
-                if (thisProgram.getExecutableFormat().contains("Raw Binary")) {                                       	
-                    String arch = thisProgram.getLanguage().toString().substring(0, thisProgram.getLanguage().toString().indexOf("/"));                    
+                if (thisProgram.getExecutableFormat().contains("Raw Binary")) {
+                    String language = thisProgram.getLanguage().toString();
+                    String arch = language.substring(0, language.indexOf("/"));
                     angr_options.put("raw_binary_arch", arch);
                 }
-                
-                File angrfile = new File(TmpDir + "angr_options.json");
-                if (angrfile.exists()) {
-                    angrfile.delete();
+                statusLabel.setForeground(Color.black);
+                mainPanel.revalidate();
+                File angrOptionsFile = new File(tmpDir + "angr_options.json");
+                if (angrOptionsFile.exists()) {
+                    angrOptionsFile.delete();
                 }
                 try {
-                    FileWriter file = new FileWriter(TmpDir + "angr_options.json");
+                    FileWriter file = new FileWriter(tmpDir + "angr_options.json");
                     file.write(angr_options.toString());
                     file.flush();
                     file.close();
-                } catch (Exception e1) {}
-                preparetoRun(angrfile);
+                } catch (Exception ex) {}
+                angrProcessing.preparetoRun(angrOptionsFile);
             }
         });
     }
 
-    protected void preparetoRun(File angrfile) {
-        SwingWorker sw = new SwingWorker() {
-            @Override
-            protected String doInBackground() throws Exception {
-                String spath = null;
-                try {
-                    spath = new File(AngryGhidraProvider.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
-                } catch (URISyntaxException e2) {
-                    e2.printStackTrace();
-                }
-                spath = (spath.substring(0, spath.indexOf("lib")) + "angryghidra_script" + File.separator + "angryghidra.py");
-                File Scriptfile = new File(spath);
-                String script_path = Scriptfile.getAbsolutePath();
-                
-                //PythonVersion check (issue#5)
-                if (runAngr("python3", script_path, angrfile.getAbsolutePath()) == 0) {
-                    ProcessBuilder pb = new ProcessBuilder("python", "--version");
-                    try {
-                        Process p = pb.start();
-                        BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-                        String line = "";
-                        while ((line = reader.readLine()) != null) {
-                            if (compareVersion(line.substring(7), "3.4") == -1 && compareVersion(line.substring(7), "3.0") == 1) {
-                                runAngr("python", script_path, angrfile.getAbsolutePath());
-                            }    
-                        };           
-                        p.waitFor();
-                        reader.close();
-                    } catch (Exception e1) {
-                        e1.printStackTrace();
-                    }
-                }
-                angrfile.delete();
-                return null;
-            }
+    private void resetState() {
+        setIsTerminated(false);
+        statusLabel.setText(configuringString);
+        statusLabel.setForeground(Color.black);
+        statusLabelFound.setText("");
+        solutionTextArea.setText("");
+        scrollSolutionTextArea.setVisible(false);
+        chckbxAutoLoadLibs.setSelected(false);
+        angrProcessing.setSolutionExternal(null);
+        angrProcessing.clearTraceList(true);
 
-            @Override
-            protected void done() {
-                if (isTerminated == true) {
-                    StatusLabel.setText(main_str);
-                    return;
-                }
-                if (solution != null && !solution.isEmpty()) {
-                    StatusLabelFound.setText("[+] Solution found:");
-                    scrollSolution.setVisible(true);
-                    SolutionArea.setText(solution.trim());
-                    traceList = Arrays.asList(insntrace.split("\\s*,\\s*"));
-                    AddressFactory addressFactory = thisProgram.getAddressFactory();
-                    for (String traceAddress: traceList) {
-                        try {
-                            AngryGhidraPopupMenu.setColor(addressFactory.getAddress(traceAddress),
-                                    Color.getHSBColor(247, 224, 98));
-                        } catch (Exception ex) {}
-                    }
-                } else {
-                    StatusLabelFound.setText("[-] Solution NOT found!");
-                }
-            }
-        };
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                StatusLabel.setText("[+] Angr in progress...");
-                scrollSolution.setVisible(false);
-            }
-        });
-        sw.execute();
-    }
-
-
-    public int runAngr(String pythonVersion, String script_path, String angrfile_path) {
-        solution = "";
-        insntrace = "";
-        ProcessBuilder pb = new ProcessBuilder(pythonVersion, script_path, angrfile_path);
-        try {
-            Process p = pb.start();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-            String line = "";
-            while ((line = reader.readLine()) != null && isTerminated == false) {
-                if (line.contains("Trace:")) {
-                    insntrace = line.substring(6);
-                } else {
-                    solution += line + "\n";
-                }
-            };
-            if (isTerminated == true) {
-                p.destroy();
-                reader.close();
-                return -1;
-            }
-            p.waitFor();
-            reader.close();
-            return 1;
-        } catch (Exception e1) {
-            e1.printStackTrace();
-            return 0;
+        // Reset blank state address
+        blankStateTF.setText("");
+        chckbxBlankState.setSelected(false);
+        Address blankStateAddress = addressStorage.getBlankStateAddress();
+        if (blankStateAddress != null) {
+            mColorService.resetColor(blankStateAddress);
+            addressStorage.setBlankStateAddress(null);
         }
+
+        // Reset find address
+        dstAddressTF.setText("");
+        Address dstAddress = addressStorage.getDestinationAddress();
+        if (dstAddress != null) {
+            mColorService.resetColor(dstAddress);
+            addressStorage.setDestinationAddress(null);
+        }
+
+        // Reset avoid addresses mainPanel
+        avoidTextArea.setText("");
+        for (Address address : addressStorage.getAvoidAddresses()){
+            mColorService.resetColor(address);
+        }
+        addressStorage.clearAvoidAddresses();
+        chckbxAvoidAddresses.setSelected(false);
+        scrollAvoidAddrsArea.setVisible(false);
+        mainOptionsPanel.revalidate();
+
+        // Reset arguments mainPanel
+        guiArgNextId = 2;
+        lbArgLen.setVisible(false);
+        btnAddArg.setVisible(false);
+        for (JButton btnDel: delBtnArgs) {
+            argSetterPanel.remove(btnDel);
+        }
+        for (IntegerTextField argTF : argsTF) {
+            argSetterPanel.remove(argTF.getComponent());
+        }
+        delBtnArgs.clear();
+        argsTF.clear();
+        firstArgTF.setText("");
+        firstArgTF.getComponent().setVisible(false);
+        chckbxArg.setSelected(false);
+        argSetterPanel.repaint();
+        argSetterPanel.revalidate();
+
+        // Reset symbolic vectors in memory
+        guiMemNextId = 2;
+        vectorAddressTF.setText("");
+        vectorLenTF.setText("");
+        for (Entry<IntegerTextField, IntegerTextField> entry : vectors.entrySet()) {
+            IntegerTextField addrTF = entry.getKey();
+            IntegerTextField lenTF = entry.getValue();
+            vectorsPanel.remove(addrTF.getComponent());
+            vectorsPanel.remove(lenTF.getComponent());
+        }
+        for (JButton button : delMemBtns) {
+            vectorsPanel.remove(button);
+        }
+        vectors.clear();
+        delMemBtns.clear();
+        vectorsPanel.repaint();
+        vectorsPanel.revalidate();
+
+        // Reset mem set contents
+        guiStoreNextId = 2;
+        for (Entry<IntegerTextField, IntegerTextField> entry : memStore.entrySet()) {
+            IntegerTextField addrTF = entry.getKey();
+            IntegerTextField valTF = entry.getValue();
+            writeMemoryPanel.remove(addrTF.getComponent());
+            writeMemoryPanel.remove(valTF.getComponent());
+        }
+        for (JButton button : delStoreBtns) {
+            writeMemoryPanel.remove(button);
+        }
+        memStoreAddrTF.setText("");
+        memStoreValueTF.setText("");
+        memStore.clear();
+        delStoreBtns.clear();
+        writeMemoryPanel.repaint();
+        writeMemoryPanel.revalidate();
+
+        // Reset preset registers
+        guiRegNextId = 2;
+        for (Entry<JTextField, JTextField> entry : presetRegs.entrySet()) {
+            JTextField regTF = entry.getKey();
+            JTextField valTF = entry.getValue();
+            regPanel.remove(regTF);
+            regPanel.remove(valTF);
+        }
+        for (JButton button : delRegsBtns) {
+            regPanel.remove(button);
+        }
+        registerTF.setText("");
+        valueTF.setText("");
+        delRegsBtns.clear();
+        presetRegs.clear();
+        regPanel.repaint();
+        regPanel.revalidate();
+
+        // Reset all hooks
+        if (hookHandler != null) {
+            hookHandler.requestClearHooks();
+        }
+        hooks.clear();
+        for (JButton button : delHookBtns) {
+            hookLablesPanel.remove(button);
+        }
+        for (JLabel label : lbHooks) {
+            hookLablesPanel.remove(label);
+        }
+        lbHooks.clear();
+        delHookBtns.clear();
+        hookLablesPanel.repaint();
+        hookLablesPanel.revalidate();
     }
 
-
-    public int compareVersion(String version1, String version2) {
-        String[] arr1 = version1.split("\\.");
-        String[] arr2 = version2.split("\\.");
-    
-        int i=0;
-        while (i<arr1.length || i<arr2.length) {
-            if (i<arr1.length && i<arr2.length) {
-                if (Integer.parseInt(arr1[i]) <Integer.parseInt(arr2[i])) {
-                    return -1;
-                } else if (Integer.parseInt(arr1[i]) > Integer.parseInt(arr2[i])) {
-                    return 1;
-                }
-            } else if (i<arr1.length) {
-                if (Integer.parseInt(arr1[i]) != 0) {
-                    return 1;
-                }
-            } else if (i<arr2.length) {
-            if (Integer.parseInt(arr2[i]) != 0) {
-                    return -1;
-                }
-            }	 
-            i++;
-        }	 
-        return 0;
-    }
-    
-    
-    public static boolean symbolicVectorInputCheck(String reg, String value) {
+    public boolean symbolicVectorInputCheck(String reg, String value) {
         return !reg.isEmpty() && !value.isEmpty() && (value.matches("0x[0-9A-Fa-f]+") ||
                 value.matches("[0-9]+") || value.contains("sv"));
     }
-    
-    
-    public void resetState() {
-        isTerminated = true;
-        solution = null;
-        StatusLabel.setText(main_str);
-        StatusLabelFound.setText("");
-        SolutionArea.setText("");
-        scrollSolution.setVisible(false);
-        chckbxAutoloadlibs.setSelected(false);
-        
-        if (!traceList.isEmpty()) {
-            AddressFactory addressFactory = thisProgram.getAddressFactory();
-            for (String traceAddress: traceList) {
-                try {
-                    AngryGhidraPopupMenu.resetColor(addressFactory.getAddress(traceAddress));
-                } catch (Exception ex) {}
-            }
-            traceList = new ArrayList <String>();
-        }   
 
-        // Reset blank state address
-        TFBlankState.setText("");
-        chckbxBlankState.setSelected(false);
-        if (AngryGhidraPopupMenu.currentBlankAddr != null) {
-            AngryGhidraPopupMenu.resetColor(AngryGhidraPopupMenu.currentBlankAddr);
-            AngryGhidraPopupMenu.currentBlankAddr = null;
+    public JTextField getFindAddressTF() {
+        return dstAddressTF;
+    }
+
+    public JTextField getBSAddressTF() {
+        return blankStateTF;
+    }
+
+    public JTextArea getTextArea() {
+        return avoidTextArea;
+    }
+
+    public JCheckBox getCBBlankState() {
+        return chckbxBlankState;
+    }
+
+    public JCheckBox getCBAvoidAddresses() {
+        return chckbxAvoidAddresses;
+    }
+
+    public JPanel getWriteMemoryPanel() {
+        return writeMemoryPanel;
+    }
+
+    public JPanel getHookLablesPanel() {
+        return hookLablesPanel;
+    }
+
+    public int getGuiStoreCounter() {
+        return guiStoreNextId;
+    }
+
+    public void setGuiStoreCounter(int value) {
+        guiStoreNextId = value;
+    }
+
+    public IntegerTextField getStoreAddressTF() {
+        return memStoreAddrTF;
+    }
+
+    public IntegerTextField getStoreValueTF() {
+        return memStoreValueTF;
+    }
+
+    public void putIntoMemStore(IntegerTextField tf1, IntegerTextField tf2) {
+        memStore.put(tf1, tf2);
+    }
+
+    public void removeFromMemStore(IntegerTextField tf1, IntegerTextField tf2) {
+        memStore.remove(tf1, tf2);
+    }
+
+    public void putIntoDelStoreBtns(JButton button) {
+        delStoreBtns.add(button);
+    }
+
+    public void removeFromDelStoreBtns(JButton button) {
+        delStoreBtns.remove(button);
+    }
+
+    public void putIntoDelHookBtns(JButton button) {
+        delHookBtns.add(button);
+    }
+
+    public void removeFromDelHookBtns(JButton button) {
+        delHookBtns.remove(button);
+    }
+
+    public ImageIcon getDeleteIcon() {
+        return deleteIcon;
+    }
+
+    public ImageIcon getAddIcon() {
+        return addIcon;
+    }
+
+    public void putIntoHooks(String[] options, String[][] regs) {
+        hooks.put(options, regs);
+    }
+
+    public void removeFromHooks(String[] options, String[][] regs) {
+        hooks.remove(options, regs);
+    }
+
+    public void putIntoLbHooks(JLabel label) {
+        lbHooks.add(label);
+    }
+
+    public void removeFromLbHooks(JLabel label) {
+        lbHooks.remove(label);
+    }
+
+    public Boolean getIsTerminated() {
+        return isTerminated;
+    }
+
+    public void setIsTerminated(Boolean value) {
+        isTerminated = value;
+    }
+
+    public JLabel getStatusLabel() {
+        return statusLabel;
+    }
+
+    public JLabel getStatusLabelFound() {
+        return statusLabelFound;
+    }
+
+    public JScrollPane getScrollSolutionTextArea() {
+        return scrollSolutionTextArea;
+    }
+
+    public JTextArea getSolutionTextArea() {
+        return solutionTextArea;
+    }
+
+    public void setProgram(Program program) {
+        if (program != null) {
+            thisProgram = program;
         }
-        
-        // Reset find address
-        TFFind.setText("");
-        if (AngryGhidraPopupMenu.currentFindAddr != null) {
-            AngryGhidraPopupMenu.resetColor(AngryGhidraPopupMenu.currentFindAddr);
-            AngryGhidraPopupMenu.currentFindAddr = null;
-        }  
-                
-        // Reset avoid addresses panel
-        textArea.setText("");
-        if (!AngryGhidraPopupMenu.currentAvoidAddresses.isEmpty()) {
-            for (Address address : AngryGhidraPopupMenu.currentAvoidAddresses){
-                AngryGhidraPopupMenu.resetColor(address);
-            }
-            AngryGhidraPopupMenu.currentAvoidAddresses.clear();
-        }
-        chckbxAvoidAddresses.setSelected(false);
-        scroll.setVisible(false);
-        MPOPanel.revalidate();
-        
-        // Reset arguments panel
-        GuiArgCounter = 2;
-        lbLenArg.setVisible(false);
-        btnAddArg.setVisible(false);
-        for (JButton btnDel: delBtnArgs) {
-            ArgPanel.remove(btnDel);
-        }
-        for (IntegerTextField TFArg: TFsOfArgs) {
-            ArgPanel.remove(TFArg.getComponent());
-        }
-        delBtnArgs.clear();
-        TFsOfArgs.clear();
-        TFFirstArg.setText("");
-        TFFirstArg.getComponent().setVisible(false);
-        chckbxArg.setSelected(false); 
-        ArgPanel.repaint();
-        ArgPanel.revalidate();
-        
-        // Reset symbolic vectors in memory
-        GuiMemCounter = 2;
-        TFsymbmem_addr.setText("");
-        TFsymbmem_len.setText("");  
-        for (Entry<IntegerTextField, IntegerTextField> entry : vectors.entrySet()) {
-            IntegerTextField TFaddr = entry.getKey();
-            IntegerTextField TFlen = entry.getValue();
-            MemPanel.remove(TFaddr.getComponent());
-            MemPanel.remove(TFlen.getComponent());
-        }
-        for (JButton button : delMemBtns) {
-            MemPanel.remove(button);
-        }
-        vectors.clear(); 
-        delMemBtns.clear();
-        MemPanel.repaint();
-        MemPanel.revalidate();
-        
-        // Reset mem set contents
-        GuiStoreCounter = 2;
-        for (Entry<IntegerTextField, IntegerTextField> entry : memStore.entrySet()) {
-            IntegerTextField TFaddr = entry.getKey();
-            IntegerTextField TFval = entry.getValue();
-            WMPanel.remove(TFaddr.getComponent());
-            WMPanel.remove(TFval.getComponent());
-        }
-        for (JButton button : delStoreBtns) {
-            WMPanel.remove(button);
-        }
-        TFstore_addr.setText("");
-        TFstore_val.setText("");
-        memStore.clear();
-        delStoreBtns.clear();
-        WMPanel.repaint();
-        WMPanel.revalidate();
-        
-        
-        // Reset preset registers
-        GuiRegCounter = 2;
-        for (Entry<JTextField, JTextField> entry : presetRegs.entrySet()) {
-            JTextField TFReg = entry.getKey();
-            JTextField TFVal = entry.getValue();
-            RegPanel.remove(TFReg);
-            RegPanel.remove(TFVal);
-        }
-        for (JButton button : delRegsBtns) {
-            RegPanel.remove(button);
-        }
-        TFReg1.setText("");
-        TFVal1.setText("");
-        delRegsBtns.clear();
-        presetRegs.clear();
-        RegPanel.repaint();
-        RegPanel.revalidate();
-        
-        // Reset all hooks
-        GuiHookCounter = 2;      
-        HookCreation.requestClearHooks();
-        hooks.clear();
-        for (JButton button : delHookBtns) {
-            RegHookPanel.remove(button);
-        }
-        for (JLabel label : lbHooks) {
-            RegHookPanel.remove(label);
-        }
-        lbHooks.clear();
-        delHookBtns.clear();   
-        RegHookPanel.repaint();
-        RegHookPanel.revalidate();
+    }
+
+    public void setHookWindowState(boolean value) {
+        isHookWindowClosed = value;
+    }
+
+    public boolean getHookWindowState() {
+        return isHookWindowClosed;
     }
 
     @Override
     public JComponent getComponent() {
-        return panel;
+        return mainPanel;
     }
-
-    public void setProgram(Program p) {
-        thisProgram = p;
-    }    
 }

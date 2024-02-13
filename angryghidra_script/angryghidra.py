@@ -2,17 +2,16 @@ import sys
 import angr
 import claripy
 import json
-import time
 
-EXPLORE_OPT = {}  # Explore options
-REGISTERS = []  # Main registers of your binary
+EXPLORE_OPT = {}
+REGISTERS = []
 SYMVECTORS = []
 
-
 def hook_function(state):
+    global SYMVECTORS
     for object in EXPLORE_OPT["hooks"]:
         for frame in object.items():
-            if frame[0] == str(hex(state.solver.eval(state.regs.ip))):
+            if frame[0] == hex(state.solver.eval(state.regs.ip)):
                 for option, data in frame[1].items():
                     if "sv" in data:
                         symbvector_length = int(data[2:], 0)
@@ -26,14 +25,18 @@ def hook_function(state):
                             setattr(state.regs, option, data)
                             break
 
-
 def main(file):
+    global EXPLORE_OPT
+    global REGISTERS
+    global SYMVECTORS
+    find = None
+    avoid = None
+    blank_state = None
+    vectors = None
+
     with open(file, encoding='utf-8') as json_file:
-        global EXPLORE_OPT
         EXPLORE_OPT = json.load(json_file)
 
-    # Options parser
-    # JSON can't handle with hex values, so we need to do it manually
     if "blank_state" in EXPLORE_OPT:
         blank_state = int(EXPLORE_OPT["blank_state"], 16)
 
@@ -61,12 +64,11 @@ def main(file):
     else:
         p = angr.Project(EXPLORE_OPT["binary_file"], load_options={'main_opts': {'base_addr': base_address}, "auto_load_libs": EXPLORE_OPT["auto_load_libs"]})
 
-    global REGISTERS
     REGISTERS = p.arch.default_symbolic_registers
 
     if len(argv) > 1:
         state = p.factory.entry_state(args=argv)
-    elif "blank_state" in locals():
+    elif blank_state != None:
         state = p.factory.blank_state(addr=blank_state)
     else:
         state = p.factory.entry_state()
@@ -89,7 +91,7 @@ def main(file):
             store_length = len(value) - 2
             state.memory.store(store_addr, state.solver.BVV(store_value, 4 * store_length))
 
-    # Handle Symbolic Registers
+    # Handle symbolic registers
     if "regs_vals" in EXPLORE_OPT:
         for register, data in EXPLORE_OPT["regs_vals"].items():
             if "sv" in data:
@@ -104,43 +106,48 @@ def main(file):
                     setattr(state.regs, register, data)
                     break
 
-    # Handle Hooks
+    # Handle hooks
     if "hooks" in EXPLORE_OPT:
         for object in EXPLORE_OPT["hooks"]:
             for frame in object.items():
                 hook_address = frame[0]
                 for option, data in frame[1].items():
                     data = int(str(data), 0)
-                    if option == "Length":
+                    if option == "length":
                         hook_length = data
                         break
                 p.hook(int(hook_address, 16), hook_function, length=hook_length)
 
     simgr = p.factory.simulation_manager(state)
-    if "avoid_address" in locals():
+    if avoid != None:
         simgr.use_technique(angr.exploration_techniques.Explorer(find=find, avoid=avoid))
     else:
         simgr.use_technique(angr.exploration_techniques.Explorer(find=find))
-
     simgr.run()
 
     if simgr.found:
         found_path = simgr.found[0]
-
         win_sequence = ""
+        finishedTracing = False
         for win_block in found_path.history.bbl_addrs.hardcopy:
             win_block = p.factory.block(win_block)
             addresses = win_block.instruction_addrs
             for address in addresses:
-                win_sequence += hex(address) + ","
+                win_sequence += 't:' + hex(address) + '\n'
+                if address == find:
+                    # Prevent sending the rest of the block addresses that aren't desired
+                    finishedTracing = True
+                    break
+            if finishedTracing:
+                break
         win_sequence = win_sequence[:-1]
-        print("Trace:" + win_sequence)
+        print(win_sequence)
 
         if len(argv) > 1:
             for i in range(1, len(argv)):
                 print("argv[{id}] = {solution}".format(id=i, solution=found_path.solver.eval(argv[i], cast_to=bytes)))
 
-        if "vectors" in locals() and len(vectors) != 0:
+        if vectors != None and len(vectors) != 0:
             for address, length in vectors.items():
                 print("{addr} = {value}".format(addr=hex(address),
                                                 value=found_path.solver.eval(found_path.memory.load(address, length),
@@ -167,5 +174,4 @@ if __name__ == '__main__':
     if len(sys.argv) < 2:
         print("Usage: *thisScript.py* angr_options.json")
         exit()
-    file = sys.argv[1]
-    main(file)
+    main(sys.argv[1])
