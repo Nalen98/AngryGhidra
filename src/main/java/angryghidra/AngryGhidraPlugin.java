@@ -1,6 +1,6 @@
 package angryghidra;
 
-import ghidra.app.ExamplesPluginPackage;
+import ghidra.app.CorePluginPackage;
 import ghidra.app.plugin.PluginCategoryNames;
 import ghidra.app.plugin.ProgramPlugin;
 import ghidra.framework.plugintool.PluginInfo;
@@ -10,7 +10,7 @@ import ghidra.program.model.listing.Program;
 
 @PluginInfo(
     status = PluginStatus.STABLE,
-    packageName = ExamplesPluginPackage.NAME,
+    packageName = CorePluginPackage.NAME,
     category = PluginCategoryNames.ANALYSIS,
     shortDescription = "Use angr in Ghidra",
     description = "One-click symbolic execution using angr in Ghidra"
