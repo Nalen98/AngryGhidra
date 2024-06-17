@@ -1,0 +1,40 @@
+name: Build
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        ghidra:
+          - "11.1.1"
+          - "11.1"
+
+    steps:
+    - name: Clone Repository
+      uses: actions/checkout@v4
+  
+    - name: Install Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '21'
+
+    - name: Install Gradle
+      uses: gradle/actions/setup-gradle@v3
+
+    - name: Install Ghidra ${{ matrix.ghidra }}
+      uses: antoniovazquezblanco/setup-ghidra@v2.0.3
+      with:
+        auth_token: ${{ secrets.GITHUB_TOKEN }}
+        version: ${{ matrix.ghidra }}
+
+    - name: Build
+      run: gradle buildExtension -PGHIDRA_INSTALL_DIR=${{ env.GHIDRA_INSTALL_DIR }}
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: AngryGhidra_Ghidra_${{ matrix.ghidra }}
+        path: dist/*AngryGhidra.zip
